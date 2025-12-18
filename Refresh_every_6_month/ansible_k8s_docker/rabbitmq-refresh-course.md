@@ -3896,6 +3896,21 @@ watch -n 1 'docker exec rabbitmq rabbitmqctl list_queues name messages consumers
 ✅ **Advanced Patterns**: RPC, Event-Driven, SAGA, Circuit Breaker  
 ✅ **Production**: Deployment, Troubleshooting, Performance Tuning  
 
+
+### Что делать с этим курсом?
+
+- Пройди модули 1-4, 7 — это основа для DevOps
+- Модули 5-6 — мониторинг и security (критично!)
+- Модули 8-9 — пропусти или просто прочитай для понимания
+
+### Фокус на:
+- CLI команды
+- Troubleshooting
+- Monitoring setup
+- Production deployment
+
+Код на Python воспринимай как бонус для автоматизации, а не основной навык!
+
 ### Следующие шаги:
 
 1. **Практика**: Реализуй реальный проект с RabbitMQ
