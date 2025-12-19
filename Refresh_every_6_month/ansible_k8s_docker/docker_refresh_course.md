@@ -144,7 +144,7 @@ COPY --from=builder /app/myapp .
 CMD ["./myapp"]
 ```
 **Минимальное Node.js приложение файл server.js (HTTP):**
-```nodejs
+```js
 const http = require("http");
 
 const server = http.createServer((req, res) => {
