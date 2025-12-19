@@ -80,6 +80,10 @@ VOLUME ["/data"]
 
 # Пользователь
 USER appuser
+# Правильный вариант (non-login, non-root) для production
+# RUN addgroup -S app && adduser -S app -G app
+# USER app
+# или лучше USER nonroot:nonroot
 
 # Команда по умолчанию
 CMD ["python3", "app.py"]
@@ -87,7 +91,44 @@ CMD ["python3", "app.py"]
 ENTRYPOINT ["python3"]
 CMD ["app.py"]
 ```
+**Простое приложение app.py на Python (Flask):**
+```python
+from flask import Flask
+app = Flask(__name__)
 
+@app.route("/")
+def hello():
+    return "Hello from Docker Flask!"
+
+app.run(host="0.0.0.0", port=5000)
+```
+
+**Простейший Dockerfile (Hello World):**
+```dockerfile
+FROM alpine:3.20
+CMD ["echo", "Hello, Docker!"]
+# docker build -t hello .
+# docker run hello
+```
+**Минимальное Go-приложение файл main.go (HTTP server)**
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+)
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Hello from Go + Docker")
+}
+
+func main() {
+	http.HandleFunc("/", handler)
+	http.ListenAndServe(":8080", nil)
+}
+
+```
 **Multi-stage build (важно!):**
 ```dockerfile
 # Стадия сборки
@@ -101,6 +142,55 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/myapp .
 CMD ["./myapp"]
+```
+**Минимальное Node.js приложение файл server.js (HTTP):**
+```nodejs
+const http = require("http");
+
+const server = http.createServer((req, res) => {
+  if (req.url === "/health") {
+    res.writeHead(200);
+    return res.end("ok");
+  }
+
+  res.writeHead(200);
+  res.end("Hello from Node.js + Docker");
+});
+
+const shutdown = () => {
+  console.log("Graceful shutdown...");
+  server.close(() => process.exit(0));
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+
+server.listen(3000, () => {
+  console.log("Server started on port 3000");
+});
+
+```
+**Dockerfile for nodejs (multi-stage, non-root):**
+```
+# ---------- build ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY server.js .
+
+# ---------- runtime ----------
+FROM node:20-alpine
+WORKDIR /app
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=builder /app .
+USER app
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "server.js"]
 ```
 
 **Полезные флаги docker run:**
