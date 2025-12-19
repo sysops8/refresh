@@ -110,7 +110,7 @@ CMD ["echo", "Hello, Docker!"]
 # docker build -t hello .
 # docker run hello
 ```
-**Минимальное Go-приложение файл main.go (HTTP server)**
+**Минимальное Go-приложение файл main.go (HTTP server):**
 ```go
 package main
 
