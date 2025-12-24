@@ -136,14 +136,26 @@ func main() {
 # go mod tidy
 # Стадия сборки
 FROM golang:1.24 AS builder
+
 WORKDIR /app
+
+# Копируем только файлы модулей
+COPY go.mod ./
+RUN go mod download
+
+# Копируем исходники
 COPY . .
-RUN go build -o myapp
+
+# Статическая сборка (совместима с Alpine)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o myapp
 
 # Финальный образ
 FROM alpine:latest
+
 WORKDIR /app
 COPY --from=builder /app/myapp .
+
+EXPOSE 8080
 CMD ["./myapp"]
 ```
 **Минимальное Node.js приложение файл server.js (HTTP):**
