@@ -173,6 +173,9 @@ server.listen(3000, () => {
 ```
 **Dockerfile for nodejs (multi-stage, non-root):**
 ```dockerfile
+# До запуска build нужно создать package.json и package-lock.json для это нужно запустить:
+# npm init -y
+# npm install
 # ---------- build ----------
 FROM node:20-alpine AS builder
 WORKDIR /app
