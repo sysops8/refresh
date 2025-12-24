@@ -4158,14 +4158,14 @@ $HELM_KUBECONTEXT                        # Kubecontext
     Best Practices
     Helm Hub (Artifact Hub)
     
-Полезные инструменты:
+### Полезные инструменты:
 
-    - kubeval – валидация K8s манифестов
-    - helm-docs – генерация документации
-    - helm-unittest – unit-тесты для charts
-    - helm-secrets – работа с зашифрованными values
-    - helm-diff – просмотр изменений перед применением
-    - chart-testing – тестирование charts в CI
+- kubeval – валидация K8s манифестов
+- helm-docs – генерация документации
+- helm-unittest – unit-тесты для charts
+- helm-secrets – работа с зашифрованными values
+- helm-diff – просмотр изменений перед применением
+- chart-testing – тестирование charts в CI
 
 Сообщество и блоги:
 
