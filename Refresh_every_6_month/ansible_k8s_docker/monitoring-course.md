@@ -4872,3 +4872,778 @@ pyroscope.configure(
 7. Профилирование дополняет трейсинг для deep analysis
 8. Правильный sampling экономит деньги и storage
 ````
+## Модуль 7: Application Performance Monitoring (APM) (30 минут)
+
+### 🎯 Напоминалка
+
+**APM - что мониторим:**
+
+```
+┌─────────────────────────────────────┐
+│ User Experience                     │
+├─────────────────────────────────────┤
+│ • Page Load Time                    │
+│ • Time to First Byte (TTFB)        │
+│ • First Contentful Paint (FCP)     │
+│ • Largest Contentful Paint (LCP)   │
+│ • Cumulative Layout Shift (CLS)    │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Application Layer                   │
+├─────────────────────────────────────┤
+│ • Request Rate                      │
+│ • Error Rate                        │
+│ • Response Time (p50, p95, p99)    │
+│ • Throughput                        │
+│ • Apdex Score                       │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Code Level                          │
+├─────────────────────────────────────┤
+│ • Function Execution Time           │
+│ • Database Query Performance        │
+│ • External API Calls                │
+│ • Memory Allocations                │
+│ • CPU Profiling                     │
+└─────────────────────────────────────┘
+```
+
+**Ключевые метрики APM:**
+
+**1. Apdex Score** (Application Performance Index):
+
+```
+Apdex = (Satisfied + Tolerating/2) / Total Requests
+
+Satisfied:   Response time ≤ T (target)
+Tolerating:  T < Response time ≤ 4T
+Frustrated:  Response time > 4T
+
+Пример: T = 0.5s
+- 0.3s  → Satisfied
+- 1.2s  → Tolerating
+- 3.0s  → Frustrated
+
+Score: 0.0-1.0 (1.0 = идеально)
+```
+
+**2. Percentiles:**
+
+```
+p50 (median)  - 50% requests быстрее
+p95           - 95% requests быстрее (хорошо для SLA)
+p99           - 99% requests быстрее (tail latency)
+p99.9         - для критичных систем
+
+Почему не среднее?
+Average: [10ms, 10ms, 10ms, 5000ms] = 1257ms
+p95:     [10ms, 10ms, 10ms, 5000ms] = 10ms
+```
+
+**3. Service Level Objectives (SLO):**
+
+yaml
+
+```yaml
+SLI (Indicator):   Availability = successful_requests / total_requests
+SLO (Objective):   99.9% availability
+SLA (Agreement):   99.9% or credit
+
+Error Budget:      0.1% = 43 minutes/month downtime
+```
+
+**4. Golden Signals для APM:**
+
+yaml
+
+````yaml
+Latency:      How long to process requests
+Traffic:      How many requests
+Errors:       Rate of failed requests  
+Saturation:   How "full" your service is
+```
+
+**Инструменты APM:**
+```
+Commercial:
+- New Relic
+- Datadog APM
+- Dynatrace
+- AppDynamics
+
+Open Source:
+- Elastic APM
+- SigNoz
+- Grafana Tempo + Prometheus
+- Jaeger
+````
+
+### 💻 Задание
+
+Настрой полноценный APM с Elastic Stack:
+
+1. **Добавь Elastic APM в docker-compose.yml**:
+
+yaml
+
+```yaml
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.11.0
+    container_name: apm-server
+    ports:
+      - "8200:8200"
+    command: >
+      apm-server -e
+        -E apm-server.rum.enabled=true
+        -E apm-server.host=0.0.0.0:8200
+        -E output.elasticsearch.hosts=["elasticsearch:9200"]
+        -E apm-server.kibana.enabled=true
+        -E apm-server.kibana.host=kibana:5601
+    depends_on:
+      - elasticsearch
+      - kibana
+    restart: unless-stopped
+
+volumes:
+  elasticsearch-data:
+```
+
+2. **Создай приложение с Elastic APM instrumentation**:
+
+**Python/Flask example:**
+
+python
+
+```python
+# app_with_apm.py
+from flask import Flask, request, jsonify
+from elasticapm.contrib.flask import ElasticAPM
+import time
+import random
+import psycopg2
+from redis import Redis
+
+app = Flask(__name__)
+
+# Конфигурация Elastic APM
+app.config['ELASTIC_APM'] = {
+    'SERVICE_NAME': 'my-flask-app',
+    'SERVER_URL': 'http://apm-server:8200',
+    'ENVIRONMENT': 'production',
+    'CAPTURE_BODY': 'all',
+    'TRANSACTION_SAMPLE_RATE': 1.0,  # 100% в dev, 0.1 в prod
+}
+
+apm = ElasticAPM(app)
+redis_client = Redis(host='redis', port=6379, decode_responses=True)
+
+@app.route('/')
+def index():
+    return jsonify({
+        'status': 'ok',
+        'service': 'my-flask-app'
+    })
+
+@app.route('/api/users')
+def get_users():
+    """Endpoint с различными операциями для APM"""
+    
+    # Custom span для кеша
+    with apm.capture_span('check_cache', span_type='cache'):
+        cache_key = 'users:all'
+        cached = redis_client.get(cache_key)
+        
+        if cached:
+            apm.tag(cache='hit')
+            return jsonify({'users': eval(cached), 'source': 'cache'})
+        
+        apm.tag(cache='miss')
+    
+    # Database query (автоматически отслеживается)
+    users = fetch_users_from_db()
+    
+    # External API call
+    with apm.capture_span('enrich_user_data', span_type='external.http'):
+        enriched = enrich_users(users)
+    
+    # Сохраняем в кеш
+    with apm.capture_span('save_to_cache', span_type='cache'):
+        redis_client.setex(cache_key, 300, str(enriched))
+    
+    return jsonify({'users': enriched, 'source': 'database'})
+
+@app.route('/api/slow')
+def slow_endpoint():
+    """Медленный endpoint для тестирования"""
+    # Симуляция медленной операции
+    time.sleep(random.uniform(2, 5))
+    return jsonify({'message': 'This was slow'})
+
+@app.route('/api/error')
+def error_endpoint():
+    """Endpoint с ошибками"""
+    if random.random() < 0.5:
+        raise Exception("Random error occurred!")
+    return jsonify({'message': 'Success'})
+
+@app.route('/api/transactions')
+def complex_transaction():
+    """Сложная транзакция с множеством операций"""
+    
+    # Шаг 1: Валидация
+    with apm.capture_span('validate_request', span_type='app'):
+        time.sleep(0.05)
+        apm.label(validation='passed')
+    
+    # Шаг 2: Получение данных
+    with apm.capture_span('fetch_data', span_type='db.postgresql'):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM transactions LIMIT 10")
+        data = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    
+    # Шаг 3: Обработка
+    with apm.capture_span('process_data', span_type='app'):
+        time.sleep(0.1)
+        processed = [{'id': row[0], 'amount': row[1]} for row in data]
+    
+    # Шаг 4: Сохранение результата
+    with apm.capture_span('save_result', span_type='cache'):
+        redis_client.setex(f'tx:result:{random.randint(1,1000)}', 
+                          600, 
+                          str(processed))
+    
+    return jsonify({'transactions': processed, 'count': len(processed)})
+
+def fetch_users_from_db():
+    """Получение пользователей из БД"""
+    # Автоматическая инструментация DB queries
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Медленный запрос
+    time.sleep(random.uniform(0.1, 0.3))
+    cursor.execute("SELECT id, name, email FROM users")
+    
+    users = [
+        {'id': row[0], 'name': row[1], 'email': row[2]}
+        for row in cursor.fetchall()
+    ]
+    
+    cursor.close()
+    conn.close()
+    return users
+
+def enrich_users(users):
+    """Обогащение данных пользователей"""
+    import requests
+    
+    # APM автоматически отследит HTTP requests
+    for user in users:
+        try:
+            # Внешний API вызов
+            response = requests.get(
+                f'http://external-api:8000/user/{user["id"]}/details',
+                timeout=1
+            )
+            if response.ok:
+                user['details'] = response.json()
+        except Exception as e:
+            apm.capture_exception()
+            user['details'] = None
+    
+    return users
+
+def get_db_connection():
+    """Получение подключения к БД"""
+    return psycopg2.connect(
+        host='postgres',
+        database='mydb',
+        user='user',
+        password='password'
+    )
+
+# Custom метрики
+@app.before_request
+def before_request():
+    """Добавляем custom tags к транзакции"""
+    elasticapm.set_user_context(
+        user_id=request.headers.get('X-User-ID'),
+        username=request.headers.get('X-Username')
+    )
+    
+    elasticapm.set_custom_context({
+        'user_agent': request.headers.get('User-Agent'),
+        'request_id': request.headers.get('X-Request-ID'),
+        'api_version': 'v1'
+    })
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
+```
+
+**Node.js/Express example:**
+
+javascript
+
+```javascript
+// app.js
+const express = require('express');
+const apm = require('elastic-apm-node').start({
+  serviceName: 'my-node-app',
+  serverUrl: 'http://apm-server:8200',
+  environment: 'production',
+  captureBody: 'all',
+  transactionSampleRate: 1.0
+});
+
+const app = express();
+const redis = require('redis');
+const { Pool } = require('pg');
+
+const redisClient = redis.createClient({
+  host: 'redis',
+  port: 6379
+});
+
+const pgPool = new Pool({
+  host: 'postgres',
+  database: 'mydb',
+  user: 'user',
+  password: 'password'
+});
+
+app.use(express.json());
+
+app.get('/api/products', async (req, res) => {
+  // Custom span
+  const span = apm.startSpan('fetch_products', 'db');
+  
+  try {
+    // Check cache
+    const cached = await redisClient.get('products:all');
+    if (cached) {
+      apm.setLabel('cache', 'hit');
+      if (span) span.end();
+      return res.json(JSON.parse(cached));
+    }
+    
+    apm.setLabel('cache', 'miss');
+    
+    // Fetch from DB
+    const result = await pgPool.query('SELECT * FROM products LIMIT 100');
+    const products = result.rows;
+    
+    // Save to cache
+    await redisClient.setex('products:all', 300, JSON.stringify(products));
+    
+    if (span) span.end();
+    res.json(products);
+    
+  } catch (error) {
+    apm.captureError(error);
+    if (span) span.end();
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/checkout', async (req, res) => {
+  const transaction = apm.currentTransaction;
+  
+  // Set custom context
+  transaction.setCustomContext({
+    cart_items: req.query.items,
+    payment_method: req.query.payment
+  });
+  
+  // Multiple spans
+  const validateSpan = apm.startSpan('validate_cart', 'app');
+  await simulateWork(100);
+  if (validateSpan) validateSpan.end();
+  
+  const inventorySpan = apm.startSpan('check_inventory', 'db');
+  await simulateWork(200);
+  if (inventorySpan) inventorySpan.end();
+  
+  const paymentSpan = apm.startSpan('process_payment', 'external');
+  await simulateWork(500);
+  if (paymentSpan) paymentSpan.end();
+  
+  res.json({ order_id: Math.random().toString(36) });
+});
+
+function simulateWork(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+3. **Запусти Elastic APM Stack**:
+
+bash
+
+````bash
+# Запусти все сервисы
+docker-compose up -d elasticsearch kibana apm-server
+
+# Подожди пока поднимутся (30-60 сек)
+docker logs -f kibana
+
+# Запусти приложение
+docker-compose up -d app
+
+# Сгенерируй трафик
+for i in {1..100}; do
+  curl http://localhost:5000/api/users
+  curl http://localhost:5000/api/transactions
+  curl http://localhost:5000/api/slow
+  curl http://localhost:5000/api/error || true
+  sleep 0.5
+done
+```
+
+4. **Открой Kibana и настрой APM**:
+```
+1. Открой: http://localhost:5601
+2. Перейди в: Observability → APM
+3. Выбери сервис: my-flask-app
+4. Изучи:
+   - Transactions: распределение времени ответа
+   - Errors: все ошибки с stacktrace
+   - Metrics: throughput, latency, error rate
+   - Service Map: зависимости между сервисами
+````
+
+5. **Создай дашборд для APM метрик в Grafana**:
+
+bash
+
+```bash
+# APM метрики доступны через Elasticsearch
+# Настрой Elasticsearch data source в Grafana
+# URL: http://elasticsearch:9200
+# Index: apm-*
+```
+
+Queries для Grafana:
+
+json
+
+```json
+// Average response time
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {"range": {"@timestamp": {"gte": "now-15m"}}},
+        {"term": {"processor.event": "transaction"}}
+      ]
+    }
+  },
+  "aggs": {
+    "response_time": {
+      "date_histogram": {"field": "@timestamp", "interval": "1m"},
+      "aggs": {
+        "avg_duration": {"avg": {"field": "transaction.duration.us"}}
+      }
+    }
+  }
+}
+
+// Error rate
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {"range": {"@timestamp": {"gte": "now-15m"}}},
+        {"term": {"processor.event": "error"}}
+      ]
+    }
+  },
+  "aggs": {
+    "errors_over_time": {
+      "date_histogram": {"field": "@timestamp", "interval": "1m"},
+      "aggs": {
+        "error_count": {"value_count": {"field": "error.id"}}
+      }
+    }
+  }
+}
+```
+
+### 🚀 Бонус (новое)
+
+**1. Настрой Real User Monitoring (RUM)**:
+
+**Frontend instrumentation:**
+
+html
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My App with RUM</title>
+    <script src="https://unpkg.com/@elastic/apm-rum@5.12.0/dist/bundles/elastic-apm-rum.umd.min.js"></script>
+    <script>
+        // Инициализация RUM
+        var apm = window.elasticApm.init({
+            serviceName: 'my-frontend',
+            serverUrl: 'http://localhost:8200',
+            serviceVersion: '1.0.0',
+            environment: 'production'
+        });
+        
+        // Custom transaction
+        function searchProducts(query) {
+            var transaction = apm.startTransaction('Search Products', 'custom');
+            
+            // Span для API call
+            var span = apm.startSpan('API Call', 'external.http');
+            
+            fetch('/api/search?q=' + query)
+                .then(response => response.json())
+                .then(data => {
+                    if (span) span.end();
+                    if (transaction) transaction.end();
+                    displayResults(data);
+                })
+                .catch(error => {
+                    apm.captureError(error);
+                    if (span) span.end();
+                    if (transaction) transaction.end();
+                });
+        }
+        
+        // Track user actions
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('.product-item')) {
+                apm.setCustomContext({
+                    product_id: e.target.dataset.productId,
+                    product_name: e.target.dataset.productName
+                });
+            }
+        });
+        
+        // Web Vitals
+        apm.observe('longtask', function(list) {
+            list.getEntries().forEach(function(entry) {
+                apm.captureError(new Error('Long Task detected: ' + entry.duration + 'ms'));
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>My Application</h1>
+    <input type="text" id="search" placeholder="Search products...">
+    <div id="results"></div>
+    
+    <script>
+        document.getElementById('search').addEventListener('input', function(e) {
+            searchProducts(e.target.value);
+        });
+    </script>
+</body>
+</html>
+```
+
+**2. Создай custom metrics в приложении**:
+
+python
+
+```python
+from elasticapm import Client
+
+apm_client = Client({
+    'SERVICE_NAME': 'my-app',
+    'SERVER_URL': 'http://apm-server:8200'
+})
+
+# Custom метрики
+class MetricsCollector:
+    def __init__(self, apm_client):
+        self.apm = apm_client
+    
+    def track_business_metric(self, metric_name, value, labels=None):
+        """Отправка бизнес-метрики"""
+        self.apm.gauge(metric_name, value, labels=labels)
+    
+    def track_cart_value(self, user_id, cart_total):
+        """Трекинг стоимости корзины"""
+        self.apm.gauge('cart.total', cart_total, labels={
+            'user_id': user_id
+        })
+    
+    def track_conversion(self, funnel_step, success):
+        """Трекинг конверсии"""
+        self.apm.counter('conversion.steps', labels={
+            'step': funnel_step,
+            'success': str(success)
+        })
+
+metrics = MetricsCollector(apm_client)
+
+@app.route('/api/add-to-cart')
+def add_to_cart():
+    # ... добавление в корзину
+    
+    # Трекинг метрики
+    metrics.track_cart_value(
+        user_id=request.headers.get('X-User-ID'),
+        cart_total=calculate_cart_total()
+    )
+    
+    metrics.track_conversion('add_to_cart', True)
+    
+    return jsonify({'success': True})
+```
+
+**3. Настрой SLO мониторинг**:
+
+python
+
+```python
+# slo_monitor.py
+from elasticapm import Client
+import time
+
+class SLOMonitor:
+    """Мониторинг SLO/SLA"""
+    
+    def __init__(self, apm_client):
+        self.apm = apm_client
+        self.slo_target = 0.999  # 99.9%
+        self.latency_target_ms = 500
+    
+    def check_availability_slo(self):
+        """Проверка SLO по доступности"""
+        total_requests = self.get_total_requests()
+        successful_requests = self.get_successful_requests()
+        
+        availability = successful_requests / total_requests if total_requests > 0 else 1.0
+        error_budget_remaining = (self.slo_target - availability) * total_requests
+        
+        self.apm.gauge('slo.availability', availability)
+        self.apm.gauge('slo.error_budget_remaining', error_budget_remaining)
+        
+        if availability < self.slo_target:
+            self.apm.capture_message(
+                f'SLO violation: Availability {availability:.4f} below target {self.slo_target}',
+                level='warning'
+            )
+        
+        return {
+            'availability': availability,
+            'target': self.slo_target,
+            'error_budget': error_budget_remaining,
+            'in_compliance': availability >= self.slo_target
+        }
+    
+    def check_latency_slo(self):
+        """Проверка SLO по латентности"""
+        p95_latency = self.get_p95_latency()
+        
+        self.apm.gauge('slo.latency_p95', p95_latency)
+        
+        if p95_latency > self.latency_target_ms:
+            self.apm.capture_message(
+                f'SLO violation: p95 latency {p95_latency}ms above target {self.latency_target_ms}ms',
+                level='warning'
+            )
+        
+        return {
+            'p95_latency': p95_latency,
+            'target': self.latency_target_ms,
+            'in_compliance': p95_latency <= self.latency_target_ms
+        }
+
+# Периодическая проверка SLO
+def monitor_slo():
+    monitor = SLOMonitor(apm_client)
+    
+    while True:
+        availability_status = monitor.check_availability_slo()
+        latency_status = monitor.check_latency_slo()
+        
+        print(f"Availability SLO: {availability_status}")
+        print(f"Latency SLO: {latency_status}")
+        
+        time.sleep(60)  # Каждую минуту
+```
+
+**4. Профилирование производительности**:
+
+python
+
+````python
+from elasticapm.contrib.flask import ElasticAPM
+import cProfile
+import pstats
+from io import StringIO
+
+@app.route('/api/profile')
+def profile_endpoint():
+    """Endpoint с профилированием"""
+    
+    # CPU profiling
+    profiler = cProfile.Profile()
+    profiler.enable()
+    
+    # Код для профилирования
+    result = expensive_operation()
+    
+    profiler.disable()
+    
+    # Сохраняем результаты в APM
+    s = StringIO()
+    stats = pstats.Stats(profiler, stream=s)
+    stats.sort_stats('cumulative')
+    stats.print_stats(20)
+    
+    apm.capture_message(
+        'Profile results',
+        custom={'profile': s.getvalue()}
+    )
+    
+    return result
+
+# Memory profiling
+from memory_profiler import profile
+
+@profile  # Декоратор для memory profiling
+def memory_intensive_operation():
+    large_list = [i for i in range(1000000)]
+    return sum(large_list)
+```
