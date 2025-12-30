@@ -1794,7 +1794,7 @@ groups:
           summary: "High error rate in {{ $labels.container }}"
           description: "Error rate: {{ $value }} errors/sec"
           dashboard: "http://grafana:3000/d/logs"
-```
+````
 
 **8. Сравнение Loki vs ELK**:
 ```
