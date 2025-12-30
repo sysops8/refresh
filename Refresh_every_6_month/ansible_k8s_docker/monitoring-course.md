@@ -3136,5 +3136,966 @@ if __name__ == "__main__":
 5. Регулярно review и cleanup алертов
 6. Документируй runbooks для каждого алерта
 7. Тестируй алерты регулярно
+
+
+## Модуль 6: Distributed Tracing и Application Performance Monitoring (40 минут)
+
+### 🎯 Напоминалка
+
+**Три столпа Observability:**
+
+```
+┌─────────────┐
+│   METRICS   │  - Что происходит? (CPU, memory, requests/sec)
+└─────────────┘
+       │
+┌─────────────┐
+│    LOGS     │  - Что произошло? (события, ошибки)
+└─────────────┘
+       │
+┌─────────────┐
+│   TRACES    │  - Почему это произошло? (путь запроса через систему)
+└─────────────┘
+```
+
+**Distributed Tracing - зачем нужен:**
+
+```
+Проблема в микросервисах:
+User Request → API Gateway → Auth Service → Order Service → Payment Service → Database
+                                                                   ↓
+                                              ❌ SLOW RESPONSE (5 seconds)
+
+Вопрос: Где bottleneck?
+- API Gateway: 50ms
+- Auth Service: 100ms
+- Order Service: 200ms
+- Payment Service: 4500ms ← НАЙДЕНО!
+- Database: 150ms
+```
+
+**Основные концепции:**
+
+**Trace** - полный путь одного запроса через систему:
+
+```
+Trace ID: abc123
+├─ Span 1: API Gateway (50ms)
+├─ Span 2: Auth Service (100ms)
+├─ Span 3: Order Service (200ms)
+│  ├─ Span 4: DB Query (50ms)
+│  └─ Span 5: Cache Check (10ms)
+└─ Span 6: Payment Service (4500ms)
+   └─ Span 7: External API Call (4400ms) ← Проблема!
+```
+
+**Span** - единица работы в системе:
+
+yaml
+
+````yaml
+Span:
+  trace_id: "abc123"
+  span_id: "span456"
+  parent_span_id: "span789"
+  operation_name: "POST /api/orders"
+  start_time: "2025-01-15T10:00:00Z"
+  duration: 200ms
+  tags:
+    http.method: "POST"
+    http.status_code: 200
+    service.name: "order-service"
+    db.statement: "SELECT * FROM orders"
+  logs:
+    - timestamp: "2025-01-15T10:00:00.050Z"
+      message: "Order validated"
+```
+
+**Популярные системы трейсинга:**
+```
+Jaeger       - CNCF проект, от Uber, Go
+Zipkin       - От Twitter, Java
+Tempo        - От Grafana Labs, интеграция с Loki
+OpenTelemetry - Стандарт (объединение OpenTracing + OpenCensus)
+AWS X-Ray    - Managed сервис от AWS
+Datadog APM  - Commercial
+New Relic    - Commercial
+```
+
+**OpenTelemetry (OTel) - современный стандарт:**
+```
+┌──────────────────────────────────┐
+│     Your Application             │
+│  ┌────────────────────────────┐  │
+│  │  OpenTelemetry SDK         │  │
+│  │  - Auto-instrumentation    │  │
+│  │  - Manual instrumentation  │  │
+│  └────────────┬───────────────┘  │
+└───────────────┼──────────────────┘
+                │
+        ┌───────▼────────┐
+        │ OTel Collector │ - Обработка, фильтрация
+        └───────┬────────┘
+                │
+    ┌───────────┴───────────┐
+    │                       │
+┌───▼────┐            ┌─────▼──┐
+│ Jaeger │            │ Tempo  │
+└────────┘            └────────┘
+```
+
+**Sampling (выборка трейсов):**
+```
+Проблема: Нельзя хранить 100% трейсов (слишком дорого)
+
+Виды sampling:
+1. Head sampling (решение в начале)
+   - Probabilistic: 10% всех трейсов
+   - Rate limiting: 100 трейсов/сек
+   
+2. Tail sampling (решение в конце)
+   - Все медленные запросы (> 1s)
+   - Все запросы с ошибками
+   - 1% нормальных запросов
+
+Рекомендация: Tail sampling + всегда сохранять ошибки
+```
+
+**APM (Application Performance Monitoring) - что включает:**
+```
+1. Трейсинг (Distributed Tracing)
+2. Профилирование (CPU, Memory profiling)
+3. Error tracking
+4. Real User Monitoring (RUM)
+5. Database query analysis
+6. External services monitoring
+```
+
+**Ключевые метрики APM:**
+
+**RED метрики (для сервисов):**
+```
+Rate     - Requests per second
+Error    - Error rate (%)
+Duration - Request latency (p50, p95, p99)
+```
+
+**USE метрики (для ресурсов):**
+```
+Utilization - % времени занятости
+Saturation  - Длина очереди
+Errors      - Количество ошибок
+```
+
+**Service metrics:**
+```
+Apdex Score = (Satisfied + Tolerating/2) / Total Requests
+- Satisfied: < 1s
+- Tolerating: 1-4s
+- Frustrated: > 4s
+
+Throughput = Requests per second
+Error Rate = Errors / Total Requests
+Availability = Uptime / Total Time
 ````
+
+**Context Propagation (как передается trace_id):**
+
+**HTTP Headers:**
+
+http
+
+````http
+# W3C Trace Context (стандарт)
+traceparent: 00-abc123def456-span789-01
+tracestate: vendor1=value1,vendor2=value2
+
+# Jaeger
+uber-trace-id: abc123:span456:0:1
+
+# Zipkin
+X-B3-TraceId: abc123
+X-B3-SpanId: span456
+X-B3-ParentSpanId: parent789
+X-B3-Sampled: 1
+```
+
+**gRPC Metadata:**
+```
+grpc-trace-bin: <binary trace context>
+````
+
+**Instrumentation подходы:**
+
+**Auto-instrumentation** (автоматический):
+
+python
+
+```python
+# Python с OpenTelemetry
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+
+FlaskInstrumentor().instrument()      # Автоматически Flask
+RequestsInstrumentor().instrument()   # Автоматически requests
+```
+
+**Manual instrumentation** (ручной):
+
+python
+
+```python
+from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__)
+
+@app.route('/api/order')
+def create_order():
+    with tracer.start_as_current_span("create_order") as span:
+        span.set_attribute("order.id", order_id)
+        span.set_attribute("user.id", user_id)
+        
+        # Ваш код
+        result = process_order(order_id)
+        
+        span.add_event("Order processed")
+        return result
+```
+
+**Язык-специфичные библиотеки:**
+
+**Python:**
+
+python
+
+```python
+# OpenTelemetry
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-django
+opentelemetry-instrumentation-sqlalchemy
+opentelemetry-exporter-jaeger
+```
+
+**Node.js:**
+
+javascript
+
+```javascript
+// OpenTelemetry
+@opentelemetry/api
+@opentelemetry/sdk-node
+@opentelemetry/auto-instrumentations-node
+@opentelemetry/exporter-jaeger
+```
+
+**Go:**
+
+go
+
+```go
+// OpenTelemetry
+go.opentelemetry.io/otel
+go.opentelemetry.io/otel/trace
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
+```
+
+**Java:**
+
+java
+
+````java
+// OpenTelemetry Java Agent (auto-instrumentation)
+java -javaagent:opentelemetry-javaagent.jar \
+     -Dotel.service.name=my-service \
+     -jar myapp.jar
+```
+
+**Jaeger UI - основные возможности:**
+```
+1. Search traces:
+   - По service name
+   - По operation name
+   - По tags
+   - По duration
+   - По времени
+
+2. Trace timeline:
+   - Визуализация spans
+   - Waterfall view
+   - Gantt chart
+
+3. Dependencies graph:
+   - Карта зависимостей сервисов
+   - Направление вызовов
+
+4. Comparison:
+   - Сравнение трейсов
+   - A/B testing результаты
+```
+
+**Service Map (карта сервисов):**
+```
+┌────────────┐
+│   User     │
+└─────┬──────┘
+      │ HTTP
+┌─────▼──────┐
+│ API Gateway│
+└─────┬──────┘
+      │
+   ┌──┴───┬────────┐
+   │      │        │
+┌──▼──┐ ┌─▼───┐ ┌─▼────┐
+│Auth │ │Order│ │User  │
+│Svc  │ │Svc  │ │Svc   │
+└──┬──┘ └──┬──┘ └──────┘
+   │       │
+   │   ┌───▼─────┐
+   │   │Payment  │
+   │   │Svc      │
+   │   └───┬─────┘
+   │       │
+   └───┬───┴─────┐
+       │         │
+   ┌───▼──┐  ┌───▼──┐
+   │ DB   │  │Cache │
+   └──────┘  └──────┘
+```
+
+**Error tracking интеграция:**
+```
+Связь трейсов с ошибками:
+
+Exception в коде → Trace ID → Полный путь запроса
+                               + stack trace
+                               + request params
+                               + user context
+```
+
+**Database query analysis:**
+```
+Частые проблемы:
+1. N+1 queries
+   - 1 запрос списка + N запросов деталей
+   
+2. Missing indexes
+   - Full table scan
+   
+3. Slow queries
+   - Сложные JOIN
+   - Большие SELECT *
+   
+4. Connection pool exhaustion
+   - Не закрытые соединения
+```
+
+**Профилирование (CPU/Memory):**
+```
+Continuous Profiling:
+- Flamegraph визуализация
+- Какие функции занимают больше времени
+- Memory allocations
+- Goroutines/Threads
+
+Инструменты:
+- pprof (Go)
+- py-spy (Python)
+- async-profiler (Java)
+- Pyroscope (unified)
+````
+
+**Real User Monitoring (RUM):**
+
+javascript
+
+````javascript
+// Frontend трейсинг
+import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
+
+const provider = new WebTracerProvider();
+const tracer = provider.getTracer('frontend-app');
+
+// Track page load
+const span = tracer.startSpan('page_load');
+span.setAttribute('page.url', window.location.href);
+
+window.addEventListener('load', () => {
+  span.end();
+});
+
+// Track user interactions
+button.addEventListener('click', () => {
+  const span = tracer.startSpan('button_click');
+  span.setAttribute('button.id', button.id);
+  // ... действие
+  span.end();
+});
+```
+
+**Best practices:**
+```
+1. ✅ Всегда передавай trace context между сервисами
+2. ✅ Добавляй полезные attributes (user_id, order_id, etc)
+3. ✅ Логируй trace_id во всех логах
+4. ✅ Используй semantic conventions (стандартные имена)
+5. ✅ Настрой правильный sampling
+6. ✅ Не логируй sensitive данные в spans
+7. ✅ Используй tail sampling для ошибок
+8. ✅ Храни трейсы минимум 7 дней
+9. ✅ Интегрируй с алертингом
+10. ✅ Создай runbook для распространенных паттернов
+````
+
+**Semantic Conventions (стандартные имена):**
+
+yaml
+
+```yaml
+# HTTP
+span.name: "GET /api/users"
+http.method: "GET"
+http.url: "https://api.example.com/users"
+http.status_code: 200
+http.route: "/api/users"
+
+# Database
+span.name: "SELECT users"
+db.system: "postgresql"
+db.operation: "SELECT"
+db.statement: "SELECT * FROM users WHERE id = ?"
+db.name: "production"
+
+# RPC
+span.name: "UserService.GetUser"
+rpc.system: "grpc"
+rpc.service: "UserService"
+rpc.method: "GetUser"
+
+# Messaging
+span.name: "process_order"
+messaging.system: "kafka"
+messaging.destination: "orders"
+messaging.operation: "process"
+```
+
+### 💻 Задание
+
+Настрой полноценный distributed tracing с Jaeger:
+
+1. **Создай docker-compose.yml для Jaeger stack**:
+
+yaml
+
+```yaml
+version: '3.8'
+
+services:
+  # Jaeger all-in-one (для development)
+  jaeger:
+    image: jaegertracing/all-in-one:1.52
+    container_name: jaeger
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "5775:5775/udp"   # accept zipkin.thrift (deprecated)
+      - "6831:6831/udp"   # accept jaeger.thrift compact
+      - "6832:6832/udp"   # accept jaeger.thrift binary
+      - "5778:5778"       # serve configs
+      - "16686:16686"     # Jaeger UI
+      - "14250:14250"     # model.proto
+      - "14268:14268"     # jaeger.thrift
+      - "14269:14269"     # Admin port: health, metrics
+      - "4317:4317"       # OTLP gRPC
+      - "4318:4318"       # OTLP HTTP
+      - "9411:9411"       # Zipkin compatible
+    restart: unless-stopped
+
+  # OpenTelemetry Collector (опционально, для обработки)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel-collector-config.yml"]
+    volumes:
+      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Prometheus metrics
+      - "8889:8889"   # Prometheus exporter metrics
+    restart: unless-stopped
+    depends_on:
+      - jaeger
+
+  # Demo приложение - Frontend
+  frontend:
+    build: ./demo-app/frontend
+    container_name: frontend
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=frontend
+      - BACKEND_URL=http://backend:5000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - otel-collector
+      - backend
+    restart: unless-stopped
+
+  # Demo приложение - Backend
+  backend:
+    build: ./demo-app/backend
+    container_name: backend
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=backend
+      - DATABASE_URL=postgresql://user:password@postgres:5432/demo
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - redis
+      - otel-collector
+    restart: unless-stopped
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Grafana для визуализации
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana-tracing
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    restart: unless-stopped
+    depends_on:
+      - jaeger
+
+volumes:
+  postgres-data:
+  grafana-data:
+```
+
+2. **Создай otel-collector-config.yml**:
+
+yaml
+
+```yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Prometheus metrics receiver
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'otel-collector'
+          scrape_interval: 10s
+          static_configs:
+            - targets: ['0.0.0.0:8888']
+
+processors:
+  # Batch processor для эффективности
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+
+  # Memory limiter
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+
+  # Tail sampling - сохраняем все ошибки и медленные запросы
+  tail_sampling:
+    decision_wait: 10s
+    num_traces: 100
+    expected_new_traces_per_sec: 10
+    policies:
+      # Всегда сохраняем ошибки
+      - name: error-traces
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      
+      # Медленные запросы (> 1s)
+      - name: slow-traces
+        type: latency
+        latency:
+          threshold_ms: 1000
+      
+      # 10% остальных
+      - name: probabilistic-policy
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+
+  # Добавление ресурсных атрибутов
+  resource:
+    attributes:
+      - key: environment
+        value: development
+        action: insert
+
+  # Attributes processor
+  attributes:
+    actions:
+      - key: db.statement
+        action: delete  # Удаляем SQL для безопасности (опционально)
+
+exporters:
+  # Jaeger exporter
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+  # Logging exporter (для отладки)
+  logging:
+    loglevel: info
+
+  # Prometheus exporter для метрик
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+service:
+  pipelines:
+    # Traces pipeline
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, tail_sampling, batch, resource, attributes]
+      exporters: [jaeger, logging]
+    
+    # Metrics pipeline
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus, logging]
+```
+
+3. **Создай demo-app/backend (Python Flask)**:
+
+`demo-app/backend/Dockerfile`:
+
+dockerfile
+
+````dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "app.py"]
+```
+
+`demo-app/backend/requirements.txt`:
+```
+flask==3.0.0
+psycopg2-binary==2.9.9
+redis==5.0.1
+requests==2.31.0
+opentelemetry-api==1.21.0
+opentelemetry-sdk==1.21.0
+opentelemetry-instrumentation-flask==0.42b0
+opentelemetry-instrumentation-requests==0.42b0
+opentelemetry-instrumentation-psycopg2==0.42b0
+opentelemetry-instrumentation-redis==0.42b0
+opentelemetry-exporter-otlp==1.21.0
+````
+
+`demo-app/backend/app.py`:
+
+python
+
+```python
+from flask import Flask, jsonify, request
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
+from opentelemetry.instrumentation.redis import RedisInstrumentor
+from opentelemetry.sdk.resources import Resource
+import psycopg2
+import redis
+import time
+import random
+import requests
+import os
+
+# Настройка OpenTelemetry
+resource = Resource.create({
+    "service.name": os.getenv("OTEL_SERVICE_NAME", "backend"),
+    "service.version": "1.0.0",
+    "deployment.environment": "development"
+})
+
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(
+        endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
+        insecure=True
+    )
+)
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+
+# Создаем tracer
+tracer = trace.get_tracer(__name__)
+
+# Создаем Flask app
+app = Flask(__name__)
+
+# Auto-instrumentation
+FlaskInstrumentor().instrument_app(app)
+RequestsInstrumentor().instrument()
+Psycopg2Instrumentor().instrument()
+RedisInstrumentor().instrument()
+
+# Database connection
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/demo")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
+
+def get_db_connection():
+    """Get database connection"""
+    return psycopg2.connect(DATABASE_URL)
+
+def get_redis_connection():
+    """Get Redis connection"""
+    return redis.from_url(REDIS_URL)
+
+# Инициализация БД
+def init_db():
+    """Initialize database"""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(100),
+                    email VARCHAR(100),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS orders (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id),
+                    product VARCHAR(100),
+                    amount DECIMAL(10, 2),
+                    status VARCHAR(20),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            conn.commit()
+
+# Routes
+@app.route('/health')
+def health():
+    """Health check endpoint"""
+    return jsonify({"status": "healthy"}), 200
+
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    """Get all users"""
+    with tracer.start_as_current_span("get_users") as span:
+        span.set_attribute("db.operation", "SELECT")
+        
+        # Симулируем случайную задержку
+        time.sleep(random.uniform(0.01, 0.1))
+        
+        # Проверяем cache
+        r = get_redis_connection()
+        cached = r.get("users:all")
+        
+        if cached:
+            span.add_event("Cache hit")
+            span.set_attribute("cache.hit", True)
+            import json
+            return jsonify(json.loads(cached)), 200
+        
+        span.add_event("Cache miss")
+        span.set_attribute("cache.hit", False)
+        
+        # Query database
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT id, name, email FROM users")
+                users = [
+                    {"id": row[0], "name": row[1], "email": row[2]}
+                    for row in cur.fetchall()
+                ]
+        
+        # Cache result
+        import json
+        r.setex("users:all", 60, json.dumps(users))
+        
+        return jsonify(users), 200
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    """Get user by ID"""
+    with tracer.start_as_current_span("get_user_by_id") as span:
+        span.set_attribute("user.id", user_id)
+        
+        # Симулируем задержку
+        time.sleep(random.uniform(0.01, 0.05))
+        
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT id, name, email FROM users WHERE id = %s",
+                    (user_id,)
+                )
+                row = cur.fetchone()
+                
+                if not row:
+                    span.set_attribute("http.status_code", 404)
+                    return jsonify({"error": "User not found"}), 404
+                
+                user = {"id": row[0], "name": row[1], "email": row[2]}
+        
+        return jsonify(user), 200
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    """Create new user"""
+    with tracer.start_as_current_span("create_user") as span:
+        data = request.json
+        
+        span.set_attribute("user.name", data.get("name"))
+        span.set_attribute("user.email", data.get("email"))
+        
+        # Валидация
+        if not data.get("name") or not data.get("email"):
+            span.set_attribute("error", True)
+            span.add_event("Validation failed")
+            return jsonify({"error": "Name and email required"}), 400
+        
+        # Симулируем задержку
+        time.sleep(random.uniform(0.05, 0.15))
+        
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO users (name, email) VALUES (%s, %s) RETURNING id",
+                    (data["name"], data["email"])
+                )
+                user_id = cur.fetchone()[0]
+                conn.commit()
+        
+        # Invalidate cache
+        r = get_redis_connection()
+        r.delete("users:all")
+        
+        span.add_event("User created", {"user.id": user_id})
+        
+        return jsonify({"id": user_id, "name": data["name"], "email": data["email"]}), 201
+
+@app.route('/api/orders', methods=['POST'])
+def create_order():
+    """Create new order - демонстрирует complex trace"""
+    with tracer.start_as_current_span("create_order") as span:
+        data = request.json
+        
+        user_id = data.get("user_id")
+        product = data.get("product")
+        amount = data.get("amount")
+        
+        span.set_attribute("order.user_id", user_id)
+        span.set_attribute("order.product", product)
+        span.set_attribute("order.amount", amount)
+        
+        # Валидация
+        if not all([user_id, product, amount]):
+            span.set_attribute("error", True)
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        # Step 1: Check user exists
+        with tracer.start_as_current_span("check_user") as user_span:
+            user_span.set_attribute("user.id", user_id)
+            time.sleep(random.uniform(0.01, 0.05))
+            
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+                    if not cur.fetchone():
+                        span.set_attribute("error", True)
+                        return jsonify({"error": "User not found"}), 404
+        
+        # Step 2: Process payment (симулируем external API)
+        with tracer.start_as_current_span("process_payment") as payment_span:
+            payment_span.set_attribute("payment.amount", amount)
+            
+            # Симулируем случайную задержку payment gateway
+            delay = random.uniform(0.1, 0.5)
+            
+            # 10% шанс медленного payment
+            if random.random() < 0.1:
+                delay = random.uniform(2, 5)
+                payment_span.set_attribute("payment.slow", True)
+            
+            # 5% шанс ошибки payment
+            if random.random() < 0.05:
+                time.sleep(delay)
+                payment_span.set_attribute("error", True)
+                payment_span.add_event("Payment failed")
+                span.set_attribute("error", True)
+                return jsonify({"error": "Payment processing failed"}), 500
+            
+            time.sleep(delay)
+            payment_span.add_event("Payment successful")
+        
+        # Step 3: Create order
+        with tracer.start_as_current_span("save_order") as save_span:
+            time.sleep(random.uniform(0.02, 0.08))
+            
+            with get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        INSERT INTO orders (user_id, product, amount, status)
+                        VALUES (%s, %s, %s, %s)
+                        RETURNING id
+                        """,
+                        (user_id, product, amount, "completed")
+                    )
+                    order_id = cur.fetchone()[0]
 ```
