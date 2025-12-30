@@ -3853,68 +3853,87 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.trace.status import Status, StatusCode
+
 import psycopg2
 import redis
 import time
 import random
-import requests
 import os
+import json
 
-# Настройка OpenTelemetry
-resource = Resource.create({
-    "service.name": os.getenv("OTEL_SERVICE_NAME", "backend"),
-    "service.version": "1.0.0",
-    "deployment.environment": "development"
-})
+# ---------------------------------------------------------------------
+# OpenTelemetry configuration
+# ---------------------------------------------------------------------
+
+resource = Resource.create(
+    {
+        "service.name": os.getenv("OTEL_SERVICE_NAME", "backend"),
+        "service.version": "1.0.0",
+        "deployment.environment": "development",
+    }
+)
 
 provider = TracerProvider(resource=resource)
 processor = BatchSpanProcessor(
     OTLPSpanExporter(
         endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
-        insecure=True
+        insecure=True,
     )
 )
 provider.add_span_processor(processor)
 trace.set_tracer_provider(provider)
 
-# Создаем tracer
 tracer = trace.get_tracer(__name__)
 
-# Создаем Flask app
+# ---------------------------------------------------------------------
+# Flask app
+# ---------------------------------------------------------------------
+
 app = Flask(__name__)
 
-# Auto-instrumentation
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument()
 Psycopg2Instrumentor().instrument()
 RedisInstrumentor().instrument()
 
-# Database connection
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost:5432/demo")
+# ---------------------------------------------------------------------
+# Connections
+# ---------------------------------------------------------------------
+
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@localhost:5432/demo"
+)
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
+
 def get_db_connection():
-    """Get database connection"""
     return psycopg2.connect(DATABASE_URL)
 
+
 def get_redis_connection():
-    """Get Redis connection"""
     return redis.from_url(REDIS_URL)
 
-# Инициализация БД
+
+# ---------------------------------------------------------------------
+# Database init
+# ---------------------------------------------------------------------
+
 def init_db():
-    """Initialize database"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS users (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(100),
                     email VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
-            cur.execute("""
+                """
+            )
+            cur.execute(
+                """
                 CREATE TABLE IF NOT EXISTS orders (
                     id SERIAL PRIMARY KEY,
                     user_id INTEGER REFERENCES users(id),
@@ -3923,179 +3942,912 @@ def init_db():
                     status VARCHAR(20),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+                """
+            )
             conn.commit()
 
+
+# ---------------------------------------------------------------------
 # Routes
-@app.route('/health')
+# ---------------------------------------------------------------------
+
+@app.route("/health")
 def health():
-    """Health check endpoint"""
     return jsonify({"status": "healthy"}), 200
 
-@app.route('/api/users', methods=['GET'])
+
+@app.route("/api/users", methods=["GET"])
 def get_users():
-    """Get all users"""
     with tracer.start_as_current_span("get_users") as span:
-        span.set_attribute("db.operation", "SELECT")
-        
-        # Симулируем случайную задержку
         time.sleep(random.uniform(0.01, 0.1))
-        
-        # Проверяем cache
+
         r = get_redis_connection()
         cached = r.get("users:all")
-        
+
         if cached:
-            span.add_event("Cache hit")
             span.set_attribute("cache.hit", True)
-            import json
             return jsonify(json.loads(cached)), 200
-        
-        span.add_event("Cache miss")
+
         span.set_attribute("cache.hit", False)
-        
-        # Query database
+
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT id, name, email FROM users")
                 users = [
-                    {"id": row[0], "name": row[1], "email": row[2]}
-                    for row in cur.fetchall()
+                    {"id": r[0], "name": r[1], "email": r[2]}
+                    for r in cur.fetchall()
                 ]
-        
-        # Cache result
-        import json
+
         r.setex("users:all", 60, json.dumps(users))
-        
         return jsonify(users), 200
 
-@app.route('/api/users/<int:user_id>', methods=['GET'])
+
+@app.route("/api/users/<int:user_id>", methods=["GET"])
 def get_user(user_id):
-    """Get user by ID"""
     with tracer.start_as_current_span("get_user_by_id") as span:
         span.set_attribute("user.id", user_id)
-        
-        # Симулируем задержку
         time.sleep(random.uniform(0.01, 0.05))
-        
+
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT id, name, email FROM users WHERE id = %s",
-                    (user_id,)
+                    (user_id,),
                 )
                 row = cur.fetchone()
-                
-                if not row:
-                    span.set_attribute("http.status_code", 404)
-                    return jsonify({"error": "User not found"}), 404
-                
-                user = {"id": row[0], "name": row[1], "email": row[2]}
-        
-        return jsonify(user), 200
 
-@app.route('/api/users', methods=['POST'])
+        if not row:
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify(
+            {"id": row[0], "name": row[1], "email": row[2]}
+        ), 200
+
+
+@app.route("/api/users", methods=["POST"])
 def create_user():
-    """Create new user"""
     with tracer.start_as_current_span("create_user") as span:
-        data = request.json
-        
-        span.set_attribute("user.name", data.get("name"))
-        span.set_attribute("user.email", data.get("email"))
-        
-        # Валидация
+        data = request.json or {}
+
         if not data.get("name") or not data.get("email"):
-            span.set_attribute("error", True)
-            span.add_event("Validation failed")
+            span.set_status(Status(StatusCode.ERROR))
             return jsonify({"error": "Name and email required"}), 400
-        
-        # Симулируем задержку
+
         time.sleep(random.uniform(0.05, 0.15))
-        
+
         with get_db_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(
                     "INSERT INTO users (name, email) VALUES (%s, %s) RETURNING id",
-                    (data["name"], data["email"])
+                    (data["name"], data["email"]),
                 )
                 user_id = cur.fetchone()[0]
                 conn.commit()
-        
-        # Invalidate cache
-        r = get_redis_connection()
-        r.delete("users:all")
-        
-        span.add_event("User created", {"user.id": user_id})
-        
-        return jsonify({"id": user_id, "name": data["name"], "email": data["email"]}), 201
 
-@app.route('/api/orders', methods=['POST'])
+        get_redis_connection().delete("users:all")
+
+        return jsonify(
+            {"id": user_id, "name": data["name"], "email": data["email"]}
+        ), 201
+
+
+@app.route("/api/orders", methods=["POST"])
 def create_order():
-    """Create new order - демонстрирует complex trace"""
     with tracer.start_as_current_span("create_order") as span:
-        data = request.json
-        
+        data = request.json or {}
+
         user_id = data.get("user_id")
         product = data.get("product")
         amount = data.get("amount")
-        
-        span.set_attribute("order.user_id", user_id)
-        span.set_attribute("order.product", product)
-        span.set_attribute("order.amount", amount)
-        
-        # Валидация
+
         if not all([user_id, product, amount]):
-            span.set_attribute("error", True)
+            span.set_status(Status(StatusCode.ERROR))
             return jsonify({"error": "Missing required fields"}), 400
-        
-        # Step 1: Check user exists
-        with tracer.start_as_current_span("check_user") as user_span:
-            user_span.set_attribute("user.id", user_id)
-            time.sleep(random.uniform(0.01, 0.05))
-            
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute("SELECT id FROM users WHERE id = %s", (user_id,))
-                    if not cur.fetchone():
-                        span.set_attribute("error", True)
-                        return jsonify({"error": "User not found"}), 404
-        
-        # Step 2: Process payment (симулируем external API)
-        with tracer.start_as_current_span("process_payment") as payment_span:
-            payment_span.set_attribute("payment.amount", amount)
-            
-            # Симулируем случайную задержку payment gateway
-            delay = random.uniform(0.1, 0.5)
-            
-            # 10% шанс медленного payment
-            if random.random() < 0.1:
-                delay = random.uniform(2, 5)
-                payment_span.set_attribute("payment.slow", True)
-            
-            # 5% шанс ошибки payment
-            if random.random() < 0.05:
-                time.sleep(delay)
-                payment_span.set_attribute("error", True)
-                payment_span.add_event("Payment failed")
-                span.set_attribute("error", True)
-                return jsonify({"error": "Payment processing failed"}), 500
-            
-            time.sleep(delay)
-            payment_span.add_event("Payment successful")
-        
-        # Step 3: Create order
-        with tracer.start_as_current_span("save_order") as save_span:
-            time.sleep(random.uniform(0.02, 0.08))
-            
-            with get_db_connection() as conn:
-                with conn.cursor() as cur:
-                    cur.execute(
-                        """
-                        INSERT INTO orders (user_id, product, amount, status)
-                        VALUES (%s, %s, %s, %s)
-                        RETURNING id
-                        """,
-                        (user_id, product, amount, "completed")
-                    )
-                    order_id = cur.fetchone()[0]
+
+        # Check user
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+                if not cur.fetchone():
+                    return jsonify({"error": "User not found"}), 404
+
+        # Payment simulation
+        time.sleep(random.uniform(0.1, 0.5))
+
+        # Save order
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO orders (user_id, product, amount, status)
+                    VALUES (%s, %s, %s, %s)
+                    RETURNING id
+                    """,
+                    (user_id, product, amount, "completed"),
+                )
+                order_id = cur.fetchone()[0]
+                conn.commit()
+
+        return jsonify(
+            {
+                "id": order_id,
+                "user_id": user_id,
+                "product": product,
+                "amount": amount,
+                "status": "completed",
+            }
+        ), 201
+
+
+@app.route("/api/orders/<int:order_id>", methods=["GET"])
+def get_order(order_id):
+    with tracer.start_as_current_span("get_order") as span:
+        time.sleep(random.uniform(0.01, 0.05))
+
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, user_id, product, amount, status
+                    FROM orders WHERE id = %s
+                    """,
+                    (order_id,),
+                )
+                row = cur.fetchone()
+
+        if not row:
+            return jsonify({"error": "Order not found"}), 404
+
+        return jsonify(
+            {
+                "id": row[0],
+                "user_id": row[1],
+                "product": row[2],
+                "amount": float(row[3]),
+                "status": row[4],
+            }
+        ), 200
+
+
+@app.route("/api/slow")
+def slow_endpoint():
+    with tracer.start_as_current_span("slow_endpoint") as span:
+        delay = random.uniform(2, 5)
+        time.sleep(delay)
+        return jsonify({"delay": delay}), 200
+
+
+@app.route("/api/error")
+def error_endpoint():
+    with tracer.start_as_current_span("error_endpoint") as span:
+        try:
+            raise RuntimeError("Simulated error for testing")
+        except Exception as e:
+            span.record_exception(e)
+            span.set_status(Status(StatusCode.ERROR, str(e)))
+            return jsonify({"error": str(e)}), 500
+
+
+# ---------------------------------------------------------------------
+# Entry point - Запуск приложения
+# ---------------------------------------------------------------------
+
+if __name__ == "__main__":
+    init_db()
+    app.run(host="0.0.0.0", port=5000)
 ```
+```
+````
+
+4. **Создай demo-app/frontend (простой HTML + JS)**:
+
+`demo-app/frontend/Dockerfile`:
+```dockerfile
+FROM nginx:alpine
+
+COPY index.html /usr/share/nginx/html/
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 8080
+```
+
+`demo-app/frontend/index.html`:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracing Demo App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            background-color: #dc3545;
+        }
+        .error:hover {
+            background-color: #c82333;
+        }
+        .slow {
+            background-color: #ffc107;
+        }
+        .slow:hover {
+            background-color: #e0a800;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .links {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        .links a {
+            display: block;
+            margin: 10px 0;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Distributed Tracing Demo</h1>
+        
+        <div class="section">
+            <h2>User Operations</h2>
+            <button onclick="getUsers()">Get All Users</button>
+            <button onclick="createUser()">Create Random User</button>
+            <br>
+            <input type="number" id="userId" placeholder="User ID">
+            <button onclick="getUser()">Get User by ID</button>
+        </div>
+        
+        <div class="section">
+            <h2>Order Operations</h2>
+            <input type="number" id="orderUserId" placeholder="User ID">
+            <input type="text" id="product" placeholder="Product">
+            <input type="number" id="amount" placeholder="Amount">
+            <button onclick="createOrder()">Create Order</button>
+            <br><br>
+            <input type="number" id="orderId" placeholder="Order ID">
+            <button onclick="getOrder()">Get Order by ID</button>
+        </div>
+        
+        <div class="section">
+            <h2>Test Scenarios</h2>
+            <button class="slow" onclick="testSlow()">Test Slow Endpoint (2-5s)</button>
+            <button class="error" onclick="testError()">Test Error Endpoint</button>
+            <button onclick="stressTest()">Stress Test (10 requests)</button>
+        </div>
+        
+        <div id="output">Response will appear here...</div>
+        
+        <div class="links">
+            <h3>📊 Monitoring Links</h3>
+            <a href="http://localhost:16686" target="_blank">🔍 Jaeger UI - View Traces</a>
+            <a href="http://localhost:3000" target="_blank">📈 Grafana - Metrics & Traces</a>
+            <a href="http://localhost:5000/health" target="_blank">💚 Backend Health Check</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        const output = document.getElementById('output');
+
+        function log(message, data = null) {
+            const timestamp = new Date().toISOString();
+            let logMessage = `[${timestamp}] ${message}`;
+            if (data) {
+                logMessage += '\n' + JSON.stringify(data, null, 2);
+            }
+            output.textContent = logMessage;
+            console.log(message, data);
+        }
+
+        async function getUsers() {
+            try {
+                log('Fetching all users...');
+                const response = await fetch(`${API_URL}/users`);
+                const data = await response.json();
+                log('✅ Users retrieved:', data);
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function getUser() {
+            const userId = document.getElementById('userId').value;
+            if (!userId) {
+                log('❌ Please enter a user ID');
+                return;
+            }
+            
+            try {
+                log(`Fetching user ${userId}...`);
+                const response = await fetch(`${API_URL}/users/${userId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ User retrieved:', data);
+                } else {
+                    log('❌ Error:', data);
+                }
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function createUser() {
+            const randomNum = Math.floor(Math.random() * 1000);
+            const userData = {
+                name: `User ${randomNum}`,
+                email: `user${randomNum}@example.com`
+            };
+            
+            try {
+                log('Creating user...', userData);
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(userData)
+                });
+                const data = await response.json();
+                log('✅ User created:', data);
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function createOrder() {
+            const orderData = {
+                user_id: parseInt(document.getElementById('orderUserId').value),
+                product: document.getElementById('product').value || 'Product',
+                amount: parseFloat(document.getElementById('amount').value) || 99.99
+            };
+            
+            if (!orderData.user_id) {
+                log('❌ Please enter a user ID');
+                return;
+            }
+            
+            try {
+                log('Creating order...', orderData);
+                const response = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(orderData)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Order created:', data);
+                } else {
+                    log('❌ Error:', data);
+                }
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function getOrder() {
+            const orderId = document.getElementById('orderId').value;
+            if (!orderId) {
+                log('❌ Please enter an order ID');
+                return;
+            }
+            
+            try {
+                log(`Fetching order ${orderId}...`);
+                const response = await fetch(`${API_URL}/orders/${orderId}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Order retrieved:', data);
+                } else {
+                    log('❌ Error:', data);
+                }
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function testSlow() {
+            try {
+                log('⏳ Testing slow endpoint (this will take 2-5 seconds)...');
+                const start = Date.now();
+                const response = await fetch(`${API_URL}/slow`);
+                const data = await response.json();
+                const duration = ((Date.now() - start) / 1000).toFixed(2);
+                log(`✅ Slow endpoint completed in ${duration}s:`, data);
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function testError() {
+            try {
+                log('💥 Testing error endpoint...');
+                const response = await fetch(`${API_URL}/error`);
+                const data = await response.json();
+                log('❌ Expected error:', data);
+            } catch (error) {
+                log('❌ Error:', error.message);
+            }
+        }
+
+        async function stressTest() {
+            log('🔥 Starting stress test with 10 parallel requests...');
+            const promises = [];
+            
+            for (let i = 0; i < 10; i++) {
+                promises.push(fetch(`${API_URL}/users`));
+            }
+            
+            try {
+                const start = Date.now();
+                await Promise.all(promises);
+                const duration = ((Date.now() - start) / 1000).toFixed(2);
+                log(`✅ Stress test completed in ${duration}s (10 requests)`);
+            } catch (error) {
+                log('❌ Stress test failed:', error.message);
+            }
+        }
+
+        // Initial message
+        log('👋 Welcome! Click any button to start generating traces.');
+    </script>
+</body>
+</html>
+```
+
+`demo-app/frontend/nginx.conf`:
+```nginx
+server {
+    listen 8080;
+    server_name localhost;
+    
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+    }
+    
+    # CORS для API запросов
+    location /api {
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'Content-Type';
+            return 204;
+        }
+    }
+}
+```
+
+5. **Создай grafana-datasources.yml**:
+```yaml
+apiVersion: 1
+
+datasources:
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    isDefault: true
+    editable: true
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: 'loki'
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: true
+        filterBySpanID: false
+```
+
+6. **Запусти и протестируй**:
+```bash
+# Создай директории
+mkdir -p demo-app/frontend demo-app/backend
+
+# Запусти stack
+docker-compose up -d
+
+# Проверка статуса
+docker-compose ps
+
+# Проверка логов
+docker-compose logs -f backend
+
+# Проверка Jaeger
+curl http://localhost:16686
+
+# Проверка backend health
+curl http://localhost:5000/health
+```
+
+7. **Открой UI и тестируй**:
+```bash
+# Frontend demo app
+open http://localhost:8080
+
+# Jaeger UI
+open http://localhost:16686
+
+# Grafana
+open http://localhost:3000
+
+# Создай тестовые данные
+curl -X POST http://localhost:5000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test User", "email": "test@example.com"}'
+
+curl -X POST http://localhost:5000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 1, "product": "Test Product", "amount": 99.99}'
+```
+
+8. **Анализ трейсов в Jaeger**:
+````
+
+1. Открой Jaeger UI: [http://localhost:16686](http://localhost:16686)
+2. Search traces:
+    - Service: backend
+    - Operation: create_order
+    - Min Duration: 1s (для медленных)
+    - Tags: error=true (для ошибок)
+3. Анализируй:
+    - Timeline view - где время тратится
+    - Span details - атрибуты, события, ошибки
+    - Service graph - карта зависимостей
+    - Trace comparison - сравнение быстрых и медленных
+
+````
+
+### 🚀 Бонус (новое)
+
+**1. Интеграция Tempo (альтернатива Jaeger)**:
+
+Добавь в `docker-compose.yml`:
+```yaml
+  tempo:
+    image: grafana/tempo:2.3.1
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"   # Tempo UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    restart: unless-stopped
+
+volumes:
+  tempo-data:
+```
+
+`tempo.yaml`:
+```yaml
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+ingester:
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    block_retention: 168h  # 7 days
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo/blocks
+    wal:
+      path: /tmp/tempo/wal
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+  storage:
+    path: /tmp/tempo/generator/wal
+  traces_storage:
+    path: /tmp/tempo/generator/traces
+```
+
+**2. Создай Python скрипт для load testing с трейсингом**:
+
+`load_test.py`:
+```python
+#!/usr/bin/env python3
+"""
+Load testing с генерацией трейсов
+"""
+import concurrent.futures
+import requests
+import time
+import random
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+# Setup tracing
+resource = Resource.create({"service.name": "load-tester"})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(
+    OTLPSpanExporter(endpoint="http://localhost:4317", insecure=True)
+)
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(__name__)
+
+API_URL = "http://localhost:5000/api"
+
+def make_request(endpoint, method="GET", data=None):
+    """Делает запрос с трейсингом"""
+    with tracer.start_as_current_span(f"{method} {endpoint}") as span:
+        span.set_attribute("http.method", method)
+        span.set_attribute("http.url", f"{API_URL}{endpoint}")
+        
+        try:
+            if method == "GET":
+                response = requests.get(f"{API_URL}{endpoint}")
+            else:
+                response = requests.post(
+                    f"{API_URL}{endpoint}",
+                    json=data,
+                    headers={"Content-Type": "application/json"}
+                )
+            
+            span.set_attribute("http.status_code", response.status_code)
+            
+            if response.status_code >= 400:
+                span.set_attribute("error", True)
+                
+            return response
+            
+        except Exception as e:
+            span.record_exception(e)
+            span.set_attribute("error", True)
+            raise
+
+def user_flow():
+    """Симулирует типичный user flow"""
+    with tracer.start_as_current_span("user_flow") as span:
+        # 1. Создаем пользователя
+        user_data = {
+            "name": f"LoadTest User {random.randint(1, 1000)}",
+            "email": f"test{random.randint(1, 1000)}@example.com"
+        }
+        response = make_request("/users", "POST", user_data)
+        
+        if response.status_code != 201:
+            span.set_attribute("flow.failed", True)
+            return
+        
+        user_id = response.json()["id"]
+        span.set_attribute("user.id", user_id)
+        
+        # 2. Получаем пользователя
+        time.sleep(random.uniform(0.1, 0.5))
+        make_request(f"/users/{user_id}")
+        
+        # 3. Создаем заказ
+        time.sleep(random.uniform(0.1, 0.5))
+        order_data = {
+            "user_id": user_id,
+            "product": f"Product {random.randint(1, 100)}",
+            "amount": round(random.uniform(10, 500), 2)
+        }
+        response = make_request("/orders", "POST", order_data)
+        
+        if response.status_code == 201:
+            order_id = response.json()["id"]
+            span.set_attribute("order.id", order_id)
+            
+            # 4. Получаем заказ
+            time.sleep(random.uniform(0.1, 0.5))
+            make_request(f"/orders/{order_id}")
+        
+        span.set_attribute("flow.completed", True)
+
+def run_load_test(num_users=10, concurrent=5):
+    """Запускает load test"""
+    print(f"Starting load test: {num_users} users, {concurrent} concurrent")
+    
+    start_time = time.time()
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrent) as executor:
+        futures = [executor.submit(user_flow) for _ in range(num_users)]
+        
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                future.result()
+            except Exception as e:
+                print(f"Error: {e}")
+    
+    duration = time.time() - start_time
+    print(f"Load test completed in {duration:.2f}s")
+    print(f"Average: {duration/num_users:.2f}s per user")
+    print(f"Throughput: {num_users/duration:.2f} users/sec")
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Load testing with tracing')
+    parser.add_argument('--users', type=int, default=10, help='Number of users')
+    parser.add_argument('--concurrent', type=int, default=5, help='Concurrent requests')
+    
+    args = parser.parse_args()
+    
+    run_load_test(num_users=args.users, concurrent=args.concurrent)
+```
+
+**3. Создай dashboard для APM в Grafana**:
+
+`grafana-dashboards/apm-dashboard.json`:
+```json
+{
+  "dashboard": {
+    "title": "Application Performance Monitoring",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(traces_spanmetrics_calls_total[5m])) by (service_name)"
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "id": 2,
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(traces_spanmetrics_calls_total{status_code=\"STATUS_CODE_ERROR\"}[5m])) by (service_name)"
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "id": 3,
+        "title": "Latency (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(traces_spanmetrics_latency_bucket[5m])) by (le, service_name))"
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "id": 4,
+        "title": "Service Map",
+        "type": "nodeGraph",
+        "targets": [
+          {
+            "queryType": "serviceMap"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**4. Continuous Profiling с Pyroscope**:
+
+Добавь в `docker-compose.yml`:
+```yaml
+  pyroscope:
+    image: grafana/pyroscope:latest
+    container_name: pyroscope
+    ports:
+      - "4040:4040"
+    restart: unless-stopped
+```
+
+Обнови Python app для профилирования:
+```python
+import pyroscope
+
+pyroscope.configure(
+    application_name="backend",
+    server_address="http://pyroscope:4040",
+    tags={
+        "environment": "development",
+    }
+)
+```
+
+---
+
+## Итоги модуля 6
+
+После прохождения этого модуля ты должен уметь:
+
+✅ Понимать концепции distributed tracing (trace, span, context)
+✅ Настраивать OpenTelemetry в приложениях
+✅ Использовать Jaeger для анализа трейсов
+✅ Интегрировать трейсы с логами и метриками
+✅ Настраивать sampling для оптимизации хранения
+✅ Анализировать performance bottlenecks
+✅ Использовать Service Map для визуализации зависимостей
+✅ Интегрировать continuous profiling
+✅ Создавать APM dashboards
+✅ Отлаживать проблемы в распределенных системах
+
+**Ключевые takeaways:**
+1. Трейсинг критичен для микросервисов - без него невозможно отладить проблемы
+2. OpenTelemetry - современный стандарт, используй его
+3. Всегда сохраняй ошибки и медленные запросы (tail sampling)
+4. Связывай трейсы с логами через trace_id
+5. Используй semantic conventions для консистентности
+6. Service Map помогает понять архитектуру системы
+7. Профилирование дополняет трейсинг для deep analysis
+8. Правильный sampling экономит деньги и storage
+````
