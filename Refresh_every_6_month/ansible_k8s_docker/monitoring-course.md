@@ -1176,7 +1176,7 @@ conf
     Match             *
     Host              loki
     Port              3100
-```
+````
 
 **Log best practices:**
 ```
