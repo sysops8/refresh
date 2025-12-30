@@ -2792,50 +2792,64 @@ python
 
 ```python
 #!/usr/bin/env python3
+
 from flask import Flask, request, jsonify
-import json
 import requests
 
 app = Flask(__name__)
 
-@app.route('/webhook/jira', methods=['POST'])
+
+@app.route("/webhook/jira", methods=["POST"])
 def jira_webhook():
-    """Создает Jira ticket для критичных алертов"""
-    data = request.json
-    
-    # Фильтруем только firing и critical
-    if data['status'] == 'firing':
-        for alert in data['alerts']:
-            if alert['labels'].get('severity') == 'critical':
+    """
+    Создает Jira ticket для критичных алертов
+    (status=firing, severity=critical)
+    """
+    data = request.json or {}
+
+    if data.get("status") == "firing":
+        for alert in data.get("alerts", []):
+            if alert.get("labels", {}).get("severity") == "critical":
                 create_jira_ticket(alert)
-    
-    return jsonify({'status': 'ok'}), 200
+
+    return jsonify({"status": "ok"}), 200
+
 
 def create_jira_ticket(alert):
     """Создает Jira ticket через API"""
+
     jira_url = "https://your-jira.atlassian.net/rest/api/2/issue"
-    
+
     ticket = {
         "fields": {
             "project": {"key": "OPS"},
-            "summary": f"[ALERT] {alert['labels']['alertname']}",
-            "description": alert['annotations']['description'],
-            "issuetype": {"name": "Incident"}, "priority": {"name": "Critical"}, "labels": ["alert", "monitoring"] } }
+            "summary": f"[ALERT] {alert['labels'].get('alertname', 'Unknown alert')}",
+            "description": alert.get("annotations", {}).get(
+                "description", "No description provided"
+            ),
+            "issuetype": {"name": "Incident"},
+            "priority": {"name": "Critical"},
+            "labels": ["alert", "monitoring"],
+        }
+    }
+
+    response = requests.post(
+        jira_url,
+        json=ticket,
+        auth=("user@example.com", "jira-api-token"),
+        headers={"Content-Type": "application/json"},
+        timeout=10,
+    )
+
+    if response.ok:
+        print(f"Jira ticket created: {response.json().get('key')}")
+    else:
+        print(f"Failed to create Jira ticket: {response.text}")
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 ```
-# Отправка в Jira
-response = requests.post(
-    jira_url,
-    json=ticket,
-    auth=('user@example.com', 'jira-api-token'),
-    headers={'Content-Type': 'application/json'}
-)
-
-print(f"Jira ticket created: {response.json().get('key')}")
-```
-
-if **name** == '**main**': app.run(host='0.0.0.0', port=5000)
-
-````
 
 **6. SLO-based alerting** (продвинутый подход):
 ```yaml
