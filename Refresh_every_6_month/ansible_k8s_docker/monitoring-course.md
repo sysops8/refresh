@@ -3410,7 +3410,7 @@ java
 java -javaagent:opentelemetry-javaagent.jar \
      -Dotel.service.name=my-service \
      -jar myapp.jar
-```
+````
 
 **Jaeger UI - основные возможности:**
 ```
