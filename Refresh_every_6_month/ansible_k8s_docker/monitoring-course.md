@@ -888,7 +888,7 @@ json
   "request_id": "abc-123",
   "duration_ms": 5000
 }
-```
+````
 
 **ELK Stack:**
 ```
