@@ -3532,7 +3532,7 @@ button.addEventListener('click', () => {
   // ... действие
   span.end();
 });
-```
+````
 
 **Best practices:**
 ```
@@ -3546,7 +3546,7 @@ button.addEventListener('click', () => {
 8. ✅ Храни трейсы минимум 7 дней
 9. ✅ Интегрируй с алертингом
 10. ✅ Создай runbook для распространенных паттернов
-````
+```
 
 **Semantic Conventions (стандартные имена):**
 
