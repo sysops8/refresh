@@ -1179,7 +1179,7 @@ conf
 ````
 
 **Log best practices:**
-```
+````
 1. Всегда используй structured logging (JSON)
 2. Включай контекст: request_id, user_id, trace_id
 3. Логируй на правильном уровне:
@@ -1457,10 +1457,10 @@ if __name__ == "__main__":
         with open('/var/log/app/application.log', 'a') as f:
             f.write(log + '\n')
         time.sleep(random.uniform(0.1, 2))
-```
+````
 
 7. **Открой Grafana и создай dashboard**:
-```
+````
 URL: http://localhost:3001
 Login: admin
 Password: admin
@@ -1681,12 +1681,12 @@ yaml
     - timestamp:
         source: time_local
         format: 02/Jan/2006:15:04:05 -0700
-```
+````
 
 **4. Создай log analysis dashboard**:
 
 Grafana panels для анализа логов:
-```
+````
 Panel 1: Log volume over time
 Query: sum(rate({job="docker"}[1m])) by (level)
 Visualization: Time series
@@ -1822,16 +1822,16 @@ ELK преимущества:
 ## Итоги модуля 4
 
 После прохождения этого модуля ты должен уметь:
-```
-✅ Понимать различные подходы к логированию
-✅ Настраивать Loki + Promtail + Grafana
-✅ Писать LogQL запросы
-✅ Парсить различные форматы логов
-✅ Создавать дашборды для анализа логов
-✅ Настраивать алерты на основе логов
-✅ Управлять retention и rotation
+
+✅ Понимать различные подходы к логированию 
+✅ Настраивать Loki + Promtail + Grafana 
+✅ Писать LogQL запросы 
+✅ Парсить различные форматы логов 
+✅ Создавать дашборды для анализа логов 
+✅ Настраивать алерты на основе логов 
+✅ Управлять retention и rotation 
 ✅ Сравнивать Loki и ELK стеки
-```
+
 
 ## Модуль 5: Alerting и Notification - умные алерты без alert fatigue (35 минут)
 
@@ -2107,7 +2107,7 @@ yaml
   for: 1h
   labels:
     severity: warning
-```
+````
 
 **Alert fatigue - как избежать:**
 ```
@@ -2140,7 +2140,7 @@ yaml
 ```
 
 **Notification channels:**
-```
+````
 Критичность    Канал           Когда использовать
 ═══════════════════════════════════════════════════════════════
 Critical       PagerDuty       Production outage, требует немедленного действия
@@ -2789,7 +2789,6 @@ receivers:
 Создай `webhook_handler.py`:
 
 python
-
 ```python
 #!/usr/bin/env python3
 
@@ -2797,7 +2796,6 @@ from flask import Flask, request, jsonify
 import requests
 
 app = Flask(__name__)
-
 
 @app.route("/webhook/jira", methods=["POST"])
 def jira_webhook():
@@ -2813,7 +2811,6 @@ def jira_webhook():
                 create_jira_ticket(alert)
 
     return jsonify({"status": "ok"}), 200
-
 
 def create_jira_ticket(alert):
     """Создает Jira ticket через API"""
@@ -2845,7 +2842,6 @@ def create_jira_ticket(alert):
         print(f"Jira ticket created: {response.json().get('key')}")
     else:
         print(f"Failed to create Jira ticket: {response.text}")
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
@@ -3138,7 +3134,7 @@ if __name__ == "__main__":
 ## Итоги модуля 5
 
 После прохождения этого модуля ты должен уметь:
-```
+
 ✅ Настраивать Alertmanager с routing и inhibition
 ✅ Писать качественные alert rules в Prometheus
 ✅ Интегрировать с различными каналами уведомлений (Slack, PagerDuty, Email)
@@ -3148,7 +3144,7 @@ if __name__ == "__main__":
 ✅ Тестировать и отлаживать alerts
 ✅ Создавать custom notification templates
 ✅ Автоматизировать maintenance windows
-```
+
 **Ключевые принципы алертинга:**
 1. Alert на симптомы, а не на причины
 2. Каждый алерт должен требовать действия
@@ -3309,7 +3305,7 @@ Errors      - Количество ошибок
 ```
 
 **Service metrics:**
-```
+````
 Apdex Score = (Satisfied + Tolerating/2) / Total Requests
 - Satisfied: < 1s
 - Tolerating: 1-4s
@@ -3339,7 +3335,7 @@ X-B3-TraceId: abc123
 X-B3-SpanId: span456
 X-B3-ParentSpanId: parent789
 X-B3-Sampled: 1
-```
+````
 
 **gRPC Metadata:**
 ```
@@ -3525,7 +3521,7 @@ Continuous Profiling:
 - py-spy (Python)
 - async-profiler (Java)
 - Pyroscope (unified)
-````
+```
 
 **Real User Monitoring (RUM):**
 
@@ -3556,7 +3552,7 @@ button.addEventListener('click', () => {
 ````
 
 **Best practices:**
-```
+````
 1. ✅ Всегда передавай trace context между сервисами
 2. ✅ Добавляй полезные attributes (user_id, order_id, etc)
 3. ✅ Логируй trace_id во всех логах
@@ -3567,7 +3563,7 @@ button.addEventListener('click', () => {
 8. ✅ Храни трейсы минимум 7 дней
 9. ✅ Интегрируй с алертингом
 10. ✅ Создай runbook для распространенных паттернов
-```
+````
 
 **Semantic Conventions (стандартные имена):**
 
@@ -3842,10 +3838,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 CMD ["python", "app.py"]
-```
+````
 
 `demo-app/backend/requirements.txt`:
-```
+````
 flask==3.0.0
 psycopg2-binary==2.9.9
 redis==5.0.1
@@ -4850,7 +4846,7 @@ pyroscope.configure(
 ## Итоги модуля 6
 
 После прохождения этого модуля ты должен уметь:
-```
+
 ✅ Понимать концепции distributed tracing (trace, span, context)
 ✅ Настраивать OpenTelemetry в приложениях
 ✅ Использовать Jaeger для анализа трейсов
@@ -4861,7 +4857,7 @@ pyroscope.configure(
 ✅ Интегрировать continuous profiling
 ✅ Создавать APM dashboards
 ✅ Отлаживать проблемы в распределенных системах
- ```
+
 **Ключевые takeaways:**
 1. Трейсинг критичен для микросервисов - без него невозможно отладить проблемы
 2. OpenTelemetry - современный стандарт, используй его
@@ -4871,8 +4867,8 @@ pyroscope.configure(
 6. Service Map помогает понять архитектуру системы
 7. Профилирование дополняет трейсинг для deep analysis
 8. Правильный sampling экономит деньги и storage
-```
-```
+
+
 ## Модуль 7: Application Performance Monitoring (APM) (30 минут)
 
 ### 🎯 Напоминалка
@@ -4964,10 +4960,10 @@ Latency:      How long to process requests
 Traffic:      How many requests
 Errors:       Rate of failed requests  
 Saturation:   How "full" your service is
-```
+````
 
 **Инструменты APM:**
-```
+````
 Commercial:
 - New Relic
 - Datadog APM
@@ -5332,10 +5328,10 @@ for i in {1..100}; do
   curl http://localhost:5000/api/error || true
   sleep 0.5
 done
-```
+````
 
 4. **Открой Kibana и настрой APM**:
-```
+````
 1. Открой: http://localhost:5601
 2. Перейди в: Observability → APM
 3. Выбери сервис: my-flask-app
@@ -5602,7 +5598,7 @@ def monitor_slo():
         print(f"Latency SLO: {latency_status}")
         
         time.sleep(60)  # Каждую минуту
-````
+```
 
 **4. Профилирование производительности**:
 
@@ -5648,3 +5644,6754 @@ def memory_intensive_operation():
     large_list = [i for i in range(1000000)]
     return sum(large_list)
 ````
+
+---
+
+## Модуль 8: Синтетический мониторинг и Uptime (25 минут)
+
+### 🎯 Напоминалка
+
+**Синтетический мониторинг vs Real User Monitoring:**
+````
+Synthetic Monitoring:
+✓ Проактивный (обнаруживает проблемы до пользователей)
+✓ Контролируемые условия
+✓ Регулярные проверки 24/7
+✓ Географическое распределение
+✗ Не отражает реальный user experience
+
+Real User Monitoring (RUM):
+✓ Реальный user experience
+✓ Реальные устройства и сети
+✓ Бизнес-метрики
+✗ Реактивный (пользователи уже пострадали)
+````
+
+**Типы синтетических проверок:**
+
+yaml
+
+````yaml
+HTTP/HTTPS Check:
+  - Status code
+  - Response time
+  - SSL certificate
+  - Response body contains text
+
+TCP Check:
+  - Port availability
+  - Connection time
+
+DNS Check:
+  - DNS resolution time
+  - Correct IP returned
+
+Browser Check (Headless):
+  - Full page load
+  - JavaScript execution
+  - Form submission
+  - Multi-step transactions
+````
+
+**Локации для проверок:**
+````
+Multiple Geographic Locations:
+- North America (US-East, US-West)
+- Europe (London, Frankfurt)
+- Asia (Tokyo, Singapore)
+- South America (São Paulo)
+
+Цель: Обнаружить региональные проблемы
+````
+
+### 💻 Задание
+
+Настрой синтетический мониторинг с Blackbox Exporter и Uptime Kuma:
+
+1. **Добавь Blackbox Exporter в docker-compose.yml**:
+
+yaml
+
+```yaml
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    restart: unless-stopped
+```
+
+2. **Создай blackbox.yml**:
+
+yaml
+
+```yaml
+modules:
+  # HTTP 2xx check
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      valid_status_codes: []  # defaults to 2xx
+      method: GET
+      preferred_ip_protocol: "ip4"
+      follow_redirects: true
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+
+  # HTTP check with POST
+  http_post_2xx:
+    prober: http
+    http:
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"key": "value"}'
+
+  # HTTP check с проверкой содержимого
+  http_content_check:
+    prober: http
+    http:
+      fail_if_body_not_matches_regexp:
+        - "Welcome"
+        - "Status: OK"
+      fail_if_body_matches_regexp:
+        - "Error"
+        - "Exception"
+
+  # HTTPS с проверкой SSL
+  https_ssl_check:
+    prober: http
+    timeout: 5s
+    http:
+      valid_status_codes: [200]
+      fail_if_ssl: false
+      fail_if_not_ssl: true
+      tls_config:
+        insecure_skip_verify: false
+
+  # TCP check
+  tcp_connect:
+    prober: tcp
+    timeout: 5s
+
+  # ICMP (ping) check
+  icmp:
+    prober: icmp
+    timeout: 5s
+    icmp:
+      preferred_ip_protocol: "ip4"
+
+  # DNS check
+  dns_check:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "example.com"
+      query_type: "A"
+
+  # SSH check
+  ssh_banner:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      query_response:
+        - expect: "^SSH-2.0-"
+
+  # PostgreSQL check
+  postgres_check:
+    prober: tcp
+    timeout: 5s
+    tcp:
+      query_response:
+        - send: "\x00\x00\x00\x08\x04\xd2\x16\x2f"
+```
+
+3. **Обнови prometheus.yml** для Blackbox:
+
+yaml
+
+```yaml
+scrape_configs:
+  # ... существующие jobs
+
+  # HTTP endpoints
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://example.com
+          - https://api.example.com
+          - http://localhost:5000
+          - http://localhost:3000
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # TCP ports
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+          - localhost:5432  # PostgreSQL
+          - localhost:6379  # Redis
+          - localhost:9090  # Prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # ICMP (ping)
+  - job_name: 'blackbox-icmp'
+    metrics_path: /probe
+    params:
+      module: [icmp]
+    static_configs:
+      - targets:
+          - 8.8.8.8        # Google DNS
+          - 1.1.1.1        # Cloudflare DNS
+          - example.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+```
+
+4. **Создай алерты для синтетических проверок**:
+```yaml
+# synthetic_alerts.yml
+groups:
+  - name: blackbox_alerts
+    rules:
+      # Endpoint недоступен
+      - alert: EndpointDown
+        expr: probe_success == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Endpoint {{ $labels.instance }} is down"
+          description: "{{ $labels.instance }} has been down for more than 5 minutes"
+          impact: "Service unavailable for users"
+
+      # Медленный ответ
+      - alert: SlowResponse
+        expr: probe_duration_seconds > 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response from {{ $labels.instance }}"
+          description: "Response time is {{ $value }}s (threshold: 3s)"
+
+      # SSL сертификат истекает
+      - alert: SSLCertExpiringSoon
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon for {{ $labels.instance }}"
+          description: "SSL certificate expires in {{ $value }} days"
+          action: "Renew SSL certificate"
+
+      # SSL сертификат истек
+      - alert: SSLCertExpired
+        expr: probe_ssl_earliest_cert_expiry - time() <= 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL certificate expired for {{ $labels.instance }}"
+          description: "SSL certificate has expired"
+          impact: "HTTPS connections will fail"
+
+      # HTTP status code не 2xx
+      - alert: HTTPStatusCode5xx
+        expr: probe_http_status_code >= 500
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP 5xx error on {{ $labels.instance }}"
+          description: "Status code: {{ $value }}"
+
+      - alert: HTTPStatusCode4xx
+        expr: probe_http_status_code >= 400 and probe_http_status_code < 500
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "HTTP 4xx error on {{ $labels.instance }}"
+          description: "Status code: {{ $value }}"
+```
+
+5. **Добавь Uptime Kuma** (красивый UI для uptime мониторинга):
+```yaml
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  uptime-kuma-data:
+```
+
+6. **Запусти и настрой**:
+```bash
+# Запусти сервисы
+docker-compose up -d blackbox-exporter uptime-kuma
+
+# Проверь Blackbox
+curl "http://localhost:9115/probe?module=http_2xx&target=https://example.com"
+
+# Настрой Uptime Kuma
+# Открой: http://localhost:3001
+# Создай аккаунт
+# Добавь мониторы:
+#   - HTTP(s) для веб-сайтов
+#   - TCP для портов
+#   - Ping для серверов
+```
+
+7. **Создай дашборд для синтетического мониторинга в Grafana**:
+
+Импортируй готовый дашборд: ID 7587 (Prometheus Blackbox Exporter)
+
+Или создай свой с панелями:
+```
+
+Panel 1: Uptime % Query: avg_over_time(probe_success[24h]) * 100
+
+Panel 2: Response Time Query: probe_duration_seconds
+
+Panel 3: SSL Certificate Days Left Query: (probe_ssl_earliest_cert_expiry - time()) / 86400
+
+Panel 4: HTTP Status Codes Query: probe_http_status_code
+
+Panel 5: Availability Map Type: Status History Query: probe_success
+
+```
+
+### 🚀 Бонус (новое)
+
+**1. Создай Multi-Step Browser Check с Playwright**:
+```python
+# synthetic_browser_check.py
+from playwright.sync_api import sync_playwright
+from prometheus_client import Gauge, Counter, start_http_server
+import time
+
+# Метрики
+check_duration = Gauge('synthetic_check_duration_seconds', 
+                       'Duration of synthetic check', 
+                       ['check_name', 'step'])
+check_success = Gauge('synthetic_check_success', 
+                     'Success status of synthetic check',
+                     ['check_name'])
+check_errors = Counter('synthetic_check_errors_total',
+                      'Total errors in synthetic checks',
+                      ['check_name', 'error_type'])
+
+def run_login_flow_check():
+    """Multi-step синтетическая проверка: логин и покупка"""
+    
+    check_name = 'ecommerce_purchase_flow'
+    start_time = time.time()
+    
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            
+            # Step 1: Загрузка главной страницы
+            step_start = time.time()
+            page.goto('https://example-shop.com')
+            check_duration.labels(check_name=check_name, step='homepage').set(
+                time.time() - step_start
+            )
+            
+            # Step 2: Поиск товара
+            step_start = time.time()
+            page.fill('input[name="search"]', 'laptop')
+            page.click('button[type="submit"]')
+            page.wait_for_selector('.product-list')
+            check_duration.labels(check_name=check_name, step='search').set(
+                time.time() - step_start
+            )
+            
+            # Step 3: Добавление в корзину
+            step_start = time.time()
+            page.click('.product-item:first-child .add-to-cart')
+            page.wait_for_selector('.cart-notification')
+            check_duration.labels(check_name=check_name, step='add_to_cart').set(
+                time.time() - step_start
+            )
+            
+            # Step 4: Checkout
+            step_start = time.time()
+            page.click('a[href="/cart"]')
+            page.wait_for_selector('.checkout-button')
+            page.click('.checkout-button')
+            page.wait_for_url('**/checkout')
+            check_duration.labels(check_name=check_name, step='checkout').set(
+                time.time() - step_start
+            )
+            
+            # Step 5: Заполнение формы
+            step_start = time.time()
+            page.fill('input[name="email"]', 'test@example.com')
+            page.fill('input[name="card_number"]', '4242424242424242')
+            page.fill('input[name="exp_date"]', '12/25')
+            page.fill('input[name="cvv"]', '123')
+            check_duration.labels(check_name=check_name, step='fill_form').set(
+                time.time() - step_start
+            )
+            
+            # Step 6: Submit и проверка успеха
+            step_start = time.time()
+            page.click('button[type="submit"]')
+            page.wait_for_selector('.order-success', timeout=10000)
+            check_duration.labels(check_name=check_name, step='submit').set(
+                time.time() - step_start
+            )
+            
+            browser.close()
+            
+            # Успех
+            check_success.labels(check_name=check_name).set(1)
+            
+            total_duration = time.time() - start_time
+            print(f"✓ Check {check_name} passed in {total_duration:.2f}s")
+            
+    except Exception as e:
+        check_success.labels(check_name=check_name).set(0)
+        check_errors.labels(
+            check_name=check_name,
+            error_type=type(e).__name__
+        ).inc()
+        print(f"✗ Check {check_name} failed: {e}")
+
+def run_api_workflow_check():
+    """API workflow проверка"""
+    import requests
+    
+    check_name = 'api_workflow'
+    
+    try:
+        # Step 1: Get auth token
+        step_start = time.time()
+        auth_response = requests.post('https://api.example.com/auth', json={
+            'username': 'test',
+            'password': 'test123'
+        }, timeout=5)
+        check_duration.labels(check_name=check_name, step='auth').set(
+            time.time() - step_start
+        )
+        
+        if auth_response.status_code != 200:
+            raise Exception(f"Auth failed: {auth_response.status_code}")
+        
+        token = auth_response.json()['token']
+        
+        # Step 2: Create resource
+        step_start = time.time()
+        create_response = requests.post(
+            'https://api.example.com/resources',
+            headers={'Authorization': f'Bearer {token}'},
+            json={'name': 'test-resource'},
+            timeout=5
+        )
+        check_duration.labels(check_name=check_name, step='create').set(
+            time.time() - step_start
+        )
+        
+        resource_id = create_response.json()['id']
+        
+        # Step 3: Get resource
+        step_start = time.time()
+        get_response = requests.get(
+            f'https://api.example.com/resources/{resource_id}',
+            headers={'Authorization': f'Bearer {token}'},
+            timeout=5
+        )
+        check_duration.labels(check_name=check_name, step='get').set(
+            time.time() - step_start
+        )
+        
+        # Step 4: Delete resource
+        step_start = time.time()
+        delete_response = requests.delete(
+            f'https://api.example.com/resources/{resource_id}',
+            headers={'Authorization': f'Bearer {token}'},
+            timeout=5
+        )
+        check_duration.labels(check_name=check_name, step='delete').set(
+            time.time() - step_start
+        )
+        
+        check_success.labels(check_name=check_name).set(1)
+        print(f"✓ API workflow check passed")
+        
+    except Exception as e:
+        check_success.labels(check_name=check_name).set(0)
+        check_errors.labels(
+            check_name=check_name,
+            error_type=type(e).__name__
+        ).inc()
+        print(f"✗ API workflow check failed: {e}")
+
+if __name__ == '__main__':
+    # Запусти Prometheus metrics server
+    start_http_server(8000)
+    print("Metrics available at http://localhost:8000")
+    
+    # Запускай проверки каждые 5 минут
+    while True:
+        print(f"\n{'='*50}")
+        print(f"Running synthetic checks at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"{'='*50}")
+        
+        run_login_flow_check()
+        run_api_workflow_check()
+        
+        time.sleep(300)  # 5 минут
+```
+
+**2. Создай Geographic Distributed Monitoring**:
+```yaml
+# docker-compose для разных регионов
+# us-east.docker-compose.yml
+version: '3.8'
+
+services:
+  blackbox-us-east:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-us-east
+    ports:
+      - "9116:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml
+    environment:
+      - LOCATION=us-east
+    restart: unless-stopped
+```
+
+Prometheus config для нескольких локаций:
+```yaml
+scrape_configs:
+  - job_name: 'blackbox-us-east'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://example.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: instance
+        replacement: example.com
+      - target_label: region
+        replacement: us-east
+      - target_label: __address__
+        replacement: blackbox-us-east:9115
+
+  - job_name: 'blackbox-eu-west'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - https://example.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: instance
+        replacement: example.com
+      - target_label: region
+        replacement: eu-west
+      - target_label: __address__
+        replacement: blackbox-eu-west:9115
+```
+
+**3. Настрой Status Page** с использованием Cachet:
+```yaml
+  cachet:
+    image: cachethq/docker:latest
+    container_name: cachet
+    ports:
+      - "8001:8000"
+    environment:
+      - DB_DRIVER=sqlite
+      - APP_KEY=base64:yourapplicationkey
+      - APP_URL=http://localhost:8001
+    volumes:
+      - cachet-data:/var/www/html/database
+    restart: unless-stopped
+
+volumes:
+  cachet-data:
+```
+
+Или используй **Upptime** (GitHub-based):
+```yaml
+# .github/workflows/upptime.yml
+name: Upptime CI
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Check status
+    runs-on: ubuntu-latest
+    steps:
+      - uses: upptime/upptime@v1.28.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+`.upptimerc.yml`:
+```yaml
+owner: your-username
+repo: upptime
+
+sites:
+  - name: Website
+    url: https://example.com
+    maxResponseTime: 5000
+  - name: API
+    url: https://api.example.com
+    maxResponseTime: 3000
+  - name: Blog
+    url: https://blog.example.com
+
+status-website:
+  cname: status.example.com
+  name: Status Page
+  introTitle: "Service Status"
+  introMessage: Real-time status and uptime monitoring
+```
+
+---
+## Модуль 8: Infrastructure as Code для мониторинга (35 минут)
+
+### 🎯 Напоминалка
+
+**IaC для мониторинга - зачем:**
+
+```
+Проблема: Ручная настройка мониторинга
+❌ Долго (часы на setup)
+❌ Ошибки (человеческий фактор)
+❌ Не воспроизводимо
+❌ Сложно масштабировать
+❌ Нет version control
+
+Решение: Infrastructure as Code
+✅ Быстро (минуты на deploy)
+✅ Надежно (автоматизация)
+✅ Воспроизводимо (идентичные окружения)
+✅ Масштабируемо (легко добавить новые сервисы)
+✅ Version control (Git history)
+```
+
+**Основные подходы:**
+
+```
+1. Configuration Management:
+   - Ansible
+   - Chef
+   - Puppet
+   - SaltStack
+
+2. Container Orchestration:
+   - Docker Compose
+   - Kubernetes (Helm)
+   - Docker Swarm
+
+3. Infrastructure Provisioning:
+   - Terraform
+   - Pulumi
+   - CloudFormation (AWS)
+
+4. GitOps:
+   - ArgoCD
+   - Flux
+   - Jenkins X
+```
+
+**Terraform для мониторинга:**
+
+```
+Provider Support:
+- Prometheus (rules, alertmanager config)
+- Grafana (dashboards, data sources, folders)
+- PagerDuty (services, escalation policies)
+- Datadog (monitors, dashboards)
+- AWS CloudWatch (alarms, dashboards)
+
+Преимущества:
+- Декларативный синтаксис
+- State management
+- Plan/Apply workflow
+- Module reusability
+```
+
+**Ansible для мониторинга:**
+
+```
+Использование:
+- Установка monitoring agents
+- Конфигурация exporters
+- Deployment monitoring stack
+- Управление dashboards
+
+Преимущества:
+- Agentless (SSH)
+- Простой YAML синтаксис
+- Большая библиотека modules
+- Idempotent operations
+```
+
+**Helm для Kubernetes:**
+
+```
+Официальные charts:
+- prometheus-community/kube-prometheus-stack
+- grafana/grafana
+- grafana/loki-stack
+- jaegertracing/jaeger
+- elastic/elasticsearch
+
+Преимущества:
+- Templating
+- Values override
+- Release management
+- Dependency management
+```
+
+**GitOps workflow:**
+
+```
+┌──────────┐
+│   Git    │ (Source of Truth)
+└────┬─────┘
+     │
+     │ Push
+     ▼
+┌──────────┐
+│  CI/CD   │ (Validation, Testing)
+└────┬─────┘
+     │
+     │ Deploy
+     ▼
+┌──────────┐
+│ Cluster  │ (Auto-sync)
+└──────────┘
+
+Principles:
+1. Declarative configuration
+2. Version controlled
+3. Automated deployment
+4. Self-healing
+```
+
+**Prometheus Configuration Management:**
+
+yaml
+
+```yaml
+# prometheus.yml как код
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: {{ cluster_name }}
+    environment: {{ environment }}
+
+# Template переменные
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: 
+      {{ range .AlertmanagerTargets }}
+      - {{ . }}
+      {{ end }}
+
+scrape_configs:
+  {{ range .Jobs }}
+  - job_name: {{ .Name }}
+    static_configs:
+      - targets: {{ .Targets }}
+        labels: {{ .Labels }}
+  {{ end }}
+```
+
+**Grafana Dashboard as Code:**
+
+json
+
+```json
+{
+  "dashboard": {
+    "title": "{{ .Title }}",
+    "tags": {{ .Tags | toJson }},
+    "timezone": "browser",
+    "panels": [
+      {{ range .Panels }}
+      {
+        "id": {{ .ID }},
+        "title": "{{ .Title }}",
+        "type": "{{ .Type }}",
+        "targets": [
+          {
+            "expr": "{{ .Query }}",
+            "legendFormat": "{{ .Legend }}"
+          }
+        ]
+      }{{ if not (last $.Panels .) }},{{ end }}
+      {{ end }}
+    ]
+  }
+}
+```
+
+**Alert Rules as Code:**
+
+yaml
+
+````yaml
+# alerts.yml template
+groups:
+{{ range .AlertGroups }}
+  - name: {{ .Name }}
+    interval: {{ .Interval }}
+    rules:
+    {{ range .Rules }}
+    - alert: {{ .Name }}
+      expr: |
+        {{ .Expression }}
+      for: {{ .For }}
+      labels:
+        severity: {{ .Severity }}
+        team: {{ .Team }}
+      annotations:
+        summary: {{ .Summary }}
+        description: {{ .Description }}
+        runbook: {{ .Runbook }}
+    {{ end }}
+{{ end }}
+````
+
+**Monitoring Stack Components:**
+```
+Full Stack:
+├── Metrics Collection
+│   ├── Prometheus
+│   ├── Node Exporter
+│   ├── Blackbox Exporter
+│   └── Custom Exporters
+├── Logs Collection
+│   ├── Loki
+│   ├── Promtail
+│   └── Fluentd/Fluent Bit
+├── Tracing
+│   ├── Jaeger/Tempo
+│   └── OpenTelemetry Collector
+├── Visualization
+│   └── Grafana
+├── Alerting
+│   └── Alertmanager
+└── Notification
+    ├── Slack
+    ├── PagerDuty
+    └── Email
+```
+
+**Directory Structure (best practices):**
+````
+monitoring-infrastructure/
+├── terraform/
+│   ├── modules/
+│   │   ├── prometheus/
+│   │   ├── grafana/
+│   │   ├── alertmanager/
+│   │   └── loki/
+│   ├── environments/
+│   │   ├── dev/
+│   │   ├── staging/
+│   │   └── prod/
+│   └── main.tf
+├── ansible/
+│   ├── playbooks/
+│   │   ├── install-prometheus.yml
+│   │   ├── configure-exporters.yml
+│   │   └── deploy-dashboards.yml
+│   ├── roles/
+│   │   ├── prometheus/
+│   │   ├── grafana/
+│   │   └── node-exporter/
+│   └── inventory/
+├── kubernetes/
+│   ├── helm/
+│   │   ├── values-dev.yaml
+│   │   ├── values-staging.yaml
+│   │   └── values-prod.yaml
+│   └── manifests/
+├── docker/
+│   ├── docker-compose.yml
+│   └── docker-compose.override.yml
+├── config/
+│   ├── prometheus/
+│   │   ├── prometheus.yml
+│   │   └── alerts/
+│   ├── grafana/
+│   │   └── dashboards/
+│   └── alertmanager/
+│       └── alertmanager.yml
+└── scripts/
+    ├── deploy.sh
+    ├── backup.sh
+    └── validate.sh
+````
+
+**Validation & Testing:**
+
+bash
+
+````bash
+# Prometheus config validation
+promtool check config prometheus.yml
+promtool check rules alerts.yml
+
+# Alert testing
+promtool test rules test-alerts.yml
+
+# Grafana dashboard validation
+grafana-cli admin validate-dashboard dashboard.json
+
+# Terraform validation
+terraform validate
+terraform plan
+
+# Ansible syntax check
+ansible-playbook --syntax-check playbook.yml
+ansible-lint playbook.yml
+````
+
+**Backup & Disaster Recovery:**
+````
+Что бэкапить:
+1. ✅ Prometheus TSDB (опционально, данные ephemeral)
+2. ✅ Grafana database (dashboards, users, settings)
+3. ✅ Alertmanager data (silences, notification log)
+4. ✅ Configuration files (prometheus.yml, alerts, etc)
+5. ✅ Custom exporters config
+
+Инструменты:
+- Prometheus: snapshots API
+- Grafana: grafana-backup tool, API export
+- Velero: Kubernetes backup
+- Restic: filesystem backup
+````
+
+**Environment Management:**
+
+yaml
+
+````yaml
+# Разные конфигурации для окружений
+Dev:
+  retention: 7d
+  replicas: 1
+  resources: small
+  scrape_interval: 30s
+
+Staging:
+  retention: 14d
+  replicas: 2
+  resources: medium
+  scrape_interval: 15s
+
+Production:
+  retention: 30d
+  replicas: 3
+  resources: large
+  scrape_interval: 15s
+  high_availability: true
+````
+
+**Secrets Management:**
+````
+Options:
+1. HashiCorp Vault
+   - Centralized secrets
+   - Dynamic credentials
+   - Audit logging
+
+2. Kubernetes Secrets
+   - Native K8s
+   - External Secrets Operator
+
+3. AWS Secrets Manager
+   - Managed service
+   - Rotation support
+
+4. Sealed Secrets
+   - GitOps friendly
+   - Encrypted in Git
+
+Best Practice: Never commit secrets to Git!
+````
+
+**CI/CD Pipeline для мониторинга:**
+
+yaml
+
+```yaml
+# .github/workflows/monitoring.yml
+name: Deploy Monitoring Stack
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'monitoring/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Validate Prometheus Config
+        run: |
+          docker run --rm -v $PWD:/prometheus prom/prometheus:latest \
+            promtool check config /prometheus/config/prometheus.yml
+      
+      - name: Test Alert Rules
+        run: |
+          docker run --rm -v $PWD:/prometheus prom/prometheus:latest \
+            promtool test rules /prometheus/tests/alerts-test.yml
+      
+      - name: Validate Grafana Dashboards
+        run: |
+          for file in grafana/dashboards/*.json; do
+            jq empty "$file" || exit 1
+          done
+
+  deploy-dev:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Deploy to Dev
+        run: |
+          helm upgrade --install monitoring ./helm \
+            --values values-dev.yaml \
+            --namespace monitoring \
+            --create-namespace
+
+  deploy-prod:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy to Production
+        run: |
+          helm upgrade --install monitoring ./helm \
+            --values values-prod.yaml \
+            --namespace monitoring
+```
+
+### 💻 Задание
+
+Создай полноценную IaC инфраструктуру для мониторинга:
+
+1. **Создай Terraform проект для Grafana**:
+
+`terraform/main.tf`:
+
+hcl
+
+```hcl
+terraform {
+  required_version = ">= 1.0"
+  
+  required_providers {
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 2.9.0"
+    }
+  }
+}
+
+provider "grafana" {
+  url  = var.grafana_url
+  auth = var.grafana_auth
+}
+
+# Data source для Prometheus
+resource "grafana_data_source" "prometheus" {
+  type = "prometheus"
+  name = "Prometheus"
+  url  = var.prometheus_url
+  
+  is_default = true
+  
+  json_data_encoded = jsonencode({
+    httpMethod    = "POST"
+    timeInterval  = "30s"
+  })
+}
+
+# Data source для Loki
+resource "grafana_data_source" "loki" {
+  type = "loki"
+  name = "Loki"
+  url  = var.loki_url
+  
+  json_data_encoded = jsonencode({
+    maxLines = 1000
+  })
+}
+
+# Folder для dashboards
+resource "grafana_folder" "monitoring" {
+  title = "Monitoring"
+}
+
+resource "grafana_folder" "applications" {
+  title = "Applications"
+}
+
+# Dashboard - Node Exporter
+resource "grafana_dashboard" "node_exporter" {
+  folder      = grafana_folder.monitoring.id
+  config_json = file("${path.module}/dashboards/node-exporter.json")
+}
+
+# Dashboard - Application Metrics
+resource "grafana_dashboard" "application" {
+  folder      = grafana_folder.applications.id
+  config_json = templatefile("${path.module}/dashboards/application.json.tpl", {
+    datasource = grafana_data_source.prometheus.name
+    environment = var.environment
+  })
+}
+
+# Alert notification channel - Slack
+resource "grafana_contact_point" "slack" {
+  name = "Slack Alerts"
+  
+  slack {
+    url  = var.slack_webhook_url
+    text = templatefile("${path.module}/templates/slack-message.tpl", {})
+  }
+}
+
+# Alert notification channel - PagerDuty
+resource "grafana_contact_point" "pagerduty" {
+  name = "PagerDuty"
+  
+  pagerduty {
+    integration_key = var.pagerduty_key
+    severity        = "critical"
+  }
+}
+
+# Notification policy
+resource "grafana_notification_policy" "main" {
+  group_by      = ["alertname", "grafana_folder"]
+  group_wait    = "10s"
+  group_interval = "5m"
+  repeat_interval = "4h"
+  
+  policy {
+    matcher {
+      label = "severity"
+      match = "="
+      value = "critical"
+    }
+    contact_point = grafana_contact_point.pagerduty.name
+    continue      = true
+  }
+  
+  policy {
+    matcher {
+      label = "severity"
+      match = "="
+      value = "warning"
+    }
+    contact_point = grafana_contact_point.slack.name
+  }
+}
+
+# Alert rule - High CPU
+resource "grafana_rule_group" "infrastructure" {
+  name             = "Infrastructure Alerts"
+  folder_uid       = grafana_folder.monitoring.uid
+  interval_seconds = 60
+  
+  rule {
+    name      = "HighCPUUsage"
+    condition = "C"
+    
+    data {
+      ref_id = "A"
+      
+      relative_time_range {
+        from = 600
+        to   = 0
+      }
+      
+      datasource_uid = grafana_data_source.prometheus.uid
+      model = jsonencode({
+        expr         = "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)"
+        refId        = "A"
+        intervalMs   = 1000
+        maxDataPoints = 43200
+      })
+    }
+    
+    data {
+      ref_id = "B"
+      
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
+      
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        expression = "A"
+        reducer    = "last"
+        refId      = "B"
+        type       = "reduce"
+      })
+    }
+    
+    data {
+      ref_id = "C"
+      
+      relative_time_range {
+        from = 0
+        to   = 0
+      }
+      
+      datasource_uid = "__expr__"
+      model = jsonencode({
+        expression = "B > 80"
+        refId      = "C"
+        type       = "threshold"
+      })
+    }
+    
+    no_data_state  = "NoData"
+    exec_err_state = "Error"
+    for            = "5m"
+    
+    annotations = {
+      summary     = "High CPU usage detected"
+      description = "CPU usage is above 80%"
+      runbook_url = "https://runbooks.example.com/high-cpu"
+    }
+    
+    labels = {
+      severity = "warning"
+      team     = "infrastructure"
+    }
+  }
+}
+
+# Organization settings
+resource "grafana_organization_preferences" "main" {
+  theme            = "dark"
+  home_dashboard_uid = grafana_dashboard.node_exporter.uid
+  timezone         = "UTC"
+}
+
+# Team
+resource "grafana_team" "infrastructure" {
+  name  = "Infrastructure Team"
+  email = "infra@example.com"
+}
+
+# Service Account для API access
+resource "grafana_service_account" "automation" {
+  name = "automation"
+  role = "Admin"
+}
+
+resource "grafana_service_account_token" "automation" {
+  name               = "automation-token"
+  service_account_id = grafana_service_account.automation.id
+}
+```
+
+`terraform/variables.tf`:
+
+hcl
+
+```hcl
+variable "grafana_url" {
+  description = "Grafana URL"
+  type        = string
+  default     = "http://localhost:3000"
+}
+
+variable "grafana_auth" {
+  description = "Grafana auth (admin:password)"
+  type        = string
+  sensitive   = true
+}
+
+variable "prometheus_url" {
+  description = "Prometheus URL"
+  type        = string
+  default     = "http://prometheus:9090"
+}
+
+variable "loki_url" {
+  description = "Loki URL"
+  type        = string
+  default     = "http://loki:3100"
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  default     = "development"
+}
+
+variable "slack_webhook_url" {
+  description = "Slack webhook URL"
+  type        = string
+  sensitive   = true
+}
+
+variable "pagerduty_key" {
+  description = "PagerDuty integration key"
+  type        = string
+  sensitive   = true
+}
+```
+
+`terraform/outputs.tf`:
+
+hcl
+
+```hcl
+output "prometheus_datasource_uid" {
+  description = "Prometheus data source UID"
+  value       = grafana_data_source.prometheus.uid
+}
+
+output "loki_datasource_uid" {
+  description = "Loki data source UID"
+  value       = grafana_data_source.loki.uid
+}
+
+output "automation_token" {
+  description = "Automation service account token"
+  value       = grafana_service_account_token.automation.key
+  sensitive   = true
+}
+
+output "dashboard_urls" {
+  description = "URLs of created dashboards"
+  value = {
+    node_exporter = "${var.grafana_url}/d/${grafana_dashboard.node_exporter.uid}"
+    application   = "${var.grafana_url}/d/${grafana_dashboard.application.uid}"
+  }
+}
+```
+
+`terraform/dashboards/application.json.tpl`:
+
+json
+
+```json
+{
+  "dashboard": {
+    "title": "Application Metrics - ${environment}",
+    "tags": ["application", "${environment}"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "datasource": "${datasource}",
+            "expr": "sum(rate(http_requests_total{environment=\"${environment}\"}[5m])) by (service)",
+            "legendFormat": "{{service}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "datasource": "${datasource}",
+            "expr": "sum(rate(http_requests_total{environment=\"${environment}\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{environment=\"${environment}\"}[5m]))",
+            "legendFormat": "Error Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percentunit",
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 0.01, "color": "yellow"},
+                {"value": 0.05, "color": "red"}
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}
+```
+
+2. **Создай Ansible playbook для deployment**:
+
+`ansible/inventory/hosts.ini`:
+
+ini
+
+```ini
+[monitoring_servers]
+monitoring-01 ansible_host=192.168.1.10 ansible_user=ubuntu
+monitoring-02 ansible_host=192.168.1.11 ansible_user=ubuntu
+
+[app_servers]
+app-01 ansible_host=192.168.1.20 ansible_user=ubuntu
+app-02 ansible_host=192.168.1.21 ansible_user=ubuntu
+app-03 ansible_host=192.168.1.22 ansible_user=ubuntu
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+environment=production
+```
+
+`ansible/playbooks/deploy-monitoring-stack.yml`:
+
+yaml
+
+````yaml
+---
+- name: Deploy Monitoring Stack
+  hosts: monitoring_servers
+  become: yes
+  vars:
+    prometheus_version: "2.48.0"
+    grafana_version: "10.2.3"
+    alertmanager_version: "0.26.0"
+    node_exporter_version: "1.7.0"
+    
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+    
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - software-properties-common
+          - wget
+          - curl
+          - tar
+        state: present
+    
+    - name: Create monitoring user
+      user:
+        name: monitoring
+        system: yes
+        shell: /bin/false
+        create_home: no
+    
+    - name: Deploy Prometheus
+      include_role:
+        name: prometheus
+      vars:
+        prometheus_config_template: "{{ playbook_dir }}/../config/prometheus/prometheus.yml.j2"
+        prometheus_alerts_dir: "{{ playbook_dir }}/../config/prometheus/alerts"
+    
+    - name: Deploy Alertmanager
+      include_role:
+        name: alertmanager
+      vars:
+        alertmanager_config_template: "{{ playbook_dir }}/../config/alertmanager/alertmanager.yml.j2"
+    
+    - name: Deploy Grafana
+      include_role:
+        name: grafana
+      vars:
+        grafana_provisioning_dir: "{{ playbook_dir }}/../config/grafana/provisioning"
+
+- name: Install Node Exporter on all servers
+  hosts: all
+  become: yes
+  tasks:
+    - name: Deploy Node Exporter
+      include_role:
+        name: node_exporter
+
+- name: Configure Application Monitoring
+  hosts: app_servers
+  become: yes
+  tasks:
+    - name: Install application exporters
+      include_role:
+        name: app_exporter
+````
+
+`ansible/roles/prometheus/tasks/main.yml`:
+
+yaml
+
+````yaml
+---
+- name: Create Prometheus directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: monitoring
+    group: monitoring
+    mode: '0755'
+  loop:
+    - /etc/prometheus
+    - /etc/prometheus/rules
+    - /var/lib/prometheus
+
+- name: Download Prometheus
+  get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/prometheus-{{ prometheus_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/prometheus-{{ prometheus_version }}.tar.gz"
+
+- name: Extract Prometheus
+  unarchive:
+    src: "/tmp/prometheus-{{ prometheus_version }}.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Install Prometheus binaries
+  copy:
+    src: "/tmp/prometheus-{{ prometheus_version }}.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: monitoring
+    group: monitoring
+    mode: '0755'
+    remote_src: yes
+  loop:
+    - prometheus
+    - promtool
+
+- name: Copy Prometheus configuration
+  template:
+    src: "{{ prometheus_config_template }}"
+    dest: /etc/prometheus/prometheus.yml
+    owner: monitoring
+    group: monitoring
+    mode: '0644'
+  notify: reload prometheus
+
+- name: Copy alert rules
+  copy:
+    src: "{{ prometheus_alerts_dir }}/"
+    dest: /etc/prometheus/rules/
+    owner: monitoring
+    group: monitoring
+    mode: '0644'
+  notify: reload prometheus
+
+- name: Create Prometheus systemd service
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart prometheus
+
+- name: Enable and start Prometheus
+  systemd:
+    name: prometheus
+    enabled: yes
+    state: started
+    daemon_reload: yes
+````
+
+`ansible/roles/prometheus/templates/prometheus.service.j2`:
+
+ini
+
+```ini
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=monitoring
+Group=monitoring
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file=/etc/prometheus/prometheus.yml \
+  --storage.tsdb.path=/var/lib/prometheus \
+  --web.console.templates=/etc/prometheus/consoles \
+  --web.console.libraries=/etc/prometheus/console_libraries \
+  --storage.tsdb.retention.time={{ prometheus_retention | default('30d') }} \
+  --web.enable-lifecycle \
+  --web.enable-admin-api
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+`ansible/roles/prometheus/handlers/main.yml`:
+
+yaml
+
+````yaml
+---
+- name: reload prometheus
+  uri:
+    url: "http://localhost:9090/-/reload"
+    method: POST
+  listen: reload prometheus
+
+- name: restart prometheus
+  systemd:
+    name: prometheus
+    state: restarted
+  listen: restart prometheus
+````
+
+3. **Создай Helm chart для Kubernetes**:
+
+`helm/monitoring/Chart.yaml`:
+
+yaml
+
+```yaml
+apiVersion: v2
+name: monitoring-stack
+description: Complete monitoring stack for Kubernetes
+type: application
+version: 1.0.0
+appVersion: "1.0"
+
+dependencies:
+  - name: kube-prometheus-stack
+    version: "55.0.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: prometheus.enabled
+    
+  - name: loki-stack
+    version: "2.9.11"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: loki.enabled
+    
+  - name: jaeger
+    version: "0.71.11"
+    repository: "https://jaegertracing.github.io/helm-charts"
+    condition: jaeger.enabled
+```
+
+`helm/monitoring/values.yaml`:
+
+yaml
+
+```yaml
+# Global settings
+global:
+  environment: production
+  clusterName: main-cluster
+
+# Prometheus configuration
+prometheus:
+  enabled: true
+  
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      retention: 30d
+      retentionSize: "50GB"
+      replicas: 2
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 100Gi
+      
+      # Additional scrape configs
+      additionalScrapeConfigs:
+        - job_name: 'custom-app'
+          kubernetes_sd_configs:
+            - role: pod
+          relabel_configs:
+            - source_labels: [__meta_kubernetes_pod_label_app]
+              regex: my-app
+              action: keep
+      
+      # Remote write (для long-term storage)
+      remoteWrite:
+        - url: http://thanos-receiver:19291/api/v1/receive
+          queueConfig:
+            capacity: 10000
+            maxShards: 50
+  
+  # Alert rules
+  additionalPrometheusRulesMap:
+    custom-alerts:
+      groups:
+        - name: custom_application_alerts
+          interval: 30s
+          rules:
+            - alert: ApplicationDown
+              expr: up{job="my-app"} == 0
+              for: 2m
+              labels:
+                severity: critical
+                team: backend
+              annotations:
+                summary: "Application {{ $labels.instance }} is down"
+                description: "Application has been down for more than 2 minutes"
+  
+  # Alertmanager
+  alertmanager:
+    config:
+      global:
+        resolve_timeout: 5m
+        slack_api_url: {{ .Values.slack.webhookUrl }}
+      
+      route:
+        group_by: ['alertname', 'cluster', 'service']
+        group_wait: 10s
+        group_interval: 5m
+        repeat_interval: 4h
+        receiver: 'default'
+        
+        routes:
+          - match:
+              severity: critical
+            receiver: pagerduty
+            continue: true
+          
+          - match:
+              severity: warning
+            receiver: slack
+      
+      receivers:
+        - name: 'default'
+          webhook_configs:
+            - url: 'http://webhook-receiver:8080/webhook'
+        
+        - name: 'slack'
+          slack_configs:
+            - channel: '#alerts'
+              title: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+              text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+        
+        - name: 'pagerduty'
+          pagerduty_configs:
+            - service_key: {{ .Values.pagerduty.serviceKey }}
+  
+  # Grafana
+  grafana:
+    enabled: true
+    adminPassword: {{ .Values.grafana.adminPassword }}
+    
+    persistence:
+      enabled: true
+      size: 10Gi
+    
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: 'default'
+            orgId: 1
+            folder: ''
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/default
+    
+    dashboards:
+      default:
+        node-exporter:
+          gnetId: 1860
+          revision: 31
+          datasource: Prometheus
+        
+        kubernetes-cluster:
+          gnetId: 7249
+          revision: 1
+          datasource: Prometheus
+
+# Loki configuration
+loki:
+  enabled: true
+
+loki-stack:
+  loki:
+    persistence:
+      enabled: true
+      size: 50Gi
+    
+    config:
+      limits_config:
+        retention_period: 168h  # 7 days
+      
+      compactor:
+        retention_enabled: true
+  
+  promtail:
+    config:
+      clients:
+        - url: http://loki:3100/loki/api/v1/push
+
+# Jaeger configuration
+jaeger:
+  enabled: true
+
+jaeger:
+  storage:
+    type: elasticsearch
+  
+  elasticsearch:
+    replicas: 3
+    minimumMasterNodes: 2
+```
+
+`helm/monitoring/values-dev.yaml`:
+```yaml
+global:
+  environment: development
+  clusterName: dev-cluster
+
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      retention: 7d
+      replicas: 1
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            resources:
+              requests:
+                storage: 20Gi
+
+loki-stack:
+  loki:
+    config:
+      limits_config:
+        retention_period: 48h
+
+jaeger:
+  enabled: false  # Disable in dev
+```
+
+4. **Создай GitOps configuration для ArgoCD**:
+
+`argocd/monitoring-app.yaml`:
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  project: default
+  
+  source:
+    repoURL: https://github.com/your-org/monitoring-infrastructure.git
+    targetRevision: main
+    path: helm/monitoring
+    helm:
+      valueFiles:
+        - values.yaml
+        - values-{{ .Values.environment }}.yaml
+  
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore HPA changes
+```
+
+5. **Создай CI/CD pipeline**:
+
+`.github/workflows/deploy-monitoring.yml`:
+```yaml
+name: Deploy Monitoring Stack
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'helm/**'
+      - 'config/**'
+      - 'terraform/**'
+  pull_request:
+    branches: [main]
+
+env:
+  HELM_VERSION: v3.13.0
+  TERRAFORM_VERSION: 1.6.0
+
+jobs:
+  validate:
+    name: Validate Configurations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+      
+      - name: Lint Helm Charts
+        run: |
+          helm lint helm/monitoring
+          helm lint helm/monitoring --values helm/monitoring/values-dev.yaml
+          helm lint helm/monitoring --values helm/monitoring/values-prod.yaml
+      
+      - name: Validate Prometheus Config
+        run: |
+          docker run --rm -v $PWD/config/prometheus:/prometheus \
+            prom/prometheus:latest \
+            promtool check config /prometheus/prometheus.yml
+      
+      - name: Test Alert Rules
+        run: |
+          docker run --rm -v $PWD:/workspace \
+            prom/prometheus:latest \
+            promtool test rules /workspace/tests/alerts-test.yml
+      
+      - name: Validate Grafana Dashboards
+        run: |
+          for file in config/grafana/dashboards/*.json; do
+            echo "Validating $file"
+            jq empty "$file" || exit 1
+          done
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+      
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/
+      
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform validate
+
+  deploy-dev:
+    name: Deploy to Development
+    needs: validate
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: development
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+      
+      - name: Configure kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG_DEV }}" | base64 -d > ~/.kube/config
+      
+      - name: Deploy Helm Chart
+        run: |
+          helm upgrade --install monitoring ./helm/monitoring \
+            --namespace monitoring \
+            --create-namespace \
+            --values helm/monitoring/values-dev.yaml \
+            --wait \
+            --timeout 10m
+      
+      - name: Run Smoke Tests
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/name=prometheus \
+            -n monitoring \
+            --timeout=300s
+          
+          kubectl wait --for=condition=ready pod \
+            -l app.kubernetes.io/name=grafana \
+            -n monitoring \
+            --timeout=300s
+
+  deploy-prod:
+    name: Deploy to Production
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: ${{ env.HELM_VERSION }}
+      
+      - name: Configure kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > ~/.kube/config
+      
+      - name: Backup current state
+        run: |
+          helm get values monitoring -n monitoring > backup-values.yaml
+          kubectl get configmap -n monitoring -o yaml > backup-configmaps.yaml
+      
+      - name: Deploy Helm Chart
+        run: |
+          helm upgrade --install monitoring ./helm/monitoring \
+            --namespace monitoring \
+            --create-namespace \
+            --values helm/monitoring/values-prod.yaml \
+            --wait \
+            --timeout 15m
+      
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/monitoring-grafana -n monitoring
+          kubectl rollout status statefulset/prometheus-monitoring-kube-prometheus-prometheus -n monitoring
+      
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Monitoring stack deployment to production: ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+6. **Создай backup script**:
+
+`scripts/backup-monitoring.sh`:
+```bash
+#!/bin/bash
+
+set -e
+
+# Configuration
+BACKUP_DIR="/backup/monitoring"
+RETENTION_DAYS=30
+DATE=$(date +%Y%m%d-%H%M%S)
+NAMESPACE="monitoring"
+
+echo "Starting monitoring backup at $(date)"
+
+# Create backup directory
+mkdir -p "$BACKUP_DIR/$DATE"
+
+# Backup Grafana
+echo "Backing up Grafana..."
+kubectl exec -n $NAMESPACE deployment/grafana -- \
+  grafana-cli admin export-dashboard > "$BACKUP_DIR/$DATE/grafana-dashboards.json"
+
+# Backup Grafana database
+kubectl exec -n $NAMESPACE deployment/grafana -- \
+  sqlite3 /var/lib/grafana/grafana.db .dump > "$BACKUP_DIR/$DATE/grafana-db.sql"
+
+# Backup Prometheus config
+echo "Backing up Prometheus configuration..."
+kubectl get configmap -n $NAMESPACE prometheus-config -o yaml > \
+  "$BACKUP_DIR/$DATE/prometheus-config.yaml"
+
+# Backup Alert rules
+kubectl get prometheusrule -n $NAMESPACE -o yaml > \
+  "$BACKUP_DIR/$DATE/prometheus-rules.yaml"
+
+# Backup Alertmanager config
+kubectl get secret -n $NAMESPACE alertmanager-config -o yaml > \
+  "$BACKUP_DIR/$DATE/alertmanager-config.yaml"
+
+# Backup PVCs
+echo "Backing up PVCs..."
+kubectl get pvc -n $NAMESPACE -o yaml > "$BACKUP_DIR/$DATE/pvcs.yaml"
+
+# Create tar archive
+echo "Creating archive..."
+tar -czf "$BACKUP_DIR/monitoring-backup-$DATE.tar.gz" -C "$BACKUP_DIR" "$DATE"
+
+# Remove temporary directory
+rm -rf "$BACKUP_DIR/$DATE"
+
+# Cleanup old backups
+echo "Cleaning up old backups..."
+find "$BACKUP_DIR" -name "monitoring-backup-*.tar.gz" -mtime +$RETENTION_DAYS -delete
+
+# Upload to S3 (optional)
+if [ -n "$AWS_S3_BUCKET" ]; then
+  echo "Uploading to S3..."
+  aws s3 cp "$BACKUP_DIR/monitoring-backup-$DATE.tar.gz" \
+    "s3://$AWS_S3_BUCKET/monitoring-backups/"
+fi
+
+echo "Backup completed successfully at $(date)"
+echo "Backup location: $BACKUP_DIR/monitoring-backup-$DATE.tar.gz"
+```
+
+7. **Создай validation tests**:
+
+`tests/alerts-test.yml`:
+```yaml
+# Unit tests для alert rules
+rule_files:
+  - ../config/prometheus/alerts/*.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Test HighCPUUsage alert
+  - interval: 1m
+    input_series:
+      - series: 'node_cpu_seconds_total{mode="idle",instance="localhost:9100"}'
+        values: '100+0x10'  # Idle CPU = 100 (постоянно)
+      
+      - series: 'node_cpu_seconds_total{mode="system",instance="localhost:9100"}'
+        values: '0+10x10'   # System CPU растёт
+    
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: HighCPUUsage
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: localhost:9100
+            exp_annotations:
+              summary: "High CPU usage on localhost:9100"
+  
+  # Test DiskSpaceCritical alert
+  - interval: 1m
+    input_series:
+      - series: 'node_filesystem_size_bytes{mountpoint="/",instance="localhost:9100"}'
+        values: '100000000000+0x10'  # 100GB total
+      
+      - series: 'node_filesystem_avail_bytes{mountpoint="/",instance="localhost:9100"}'
+        values: '5000000000+0x10'    # 5GB available (95% used)
+    
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: DiskSpaceCritical
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: localhost:9100
+              mountpoint: "/"
+            exp_annotations:
+              summary: "Critical disk space on localhost:9100"
+  
+  # Test no alert when metrics are normal
+  - interval: 1m
+    input_series:
+      - series: 'node_cpu_seconds_total{mode="idle",instance="localhost:9100"}'
+        values: '100+10x10'  # Normal idle CPU
+    
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: HighCPUUsage
+        exp_alerts: []  # No alerts expected
+```
+
+8. **Запуск и тестирование**:
+```bash
+# Terraform
+cd terraform
+terraform init
+terraform plan -var="grafana_auth=admin:admin"
+terraform apply -var="grafana_auth=admin:admin"
+
+# Ansible
+cd ansible
+ansible-playbook -i inventory/hosts.ini playbooks/deploy-monitoring-stack.yml
+
+# Helm (local test)
+helm install monitoring ./helm/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values helm/monitoring/values-dev.yaml \
+  --dry-run --debug
+
+# Real deployment
+helm install monitoring ./helm/monitoring \
+  --namespace monitoring \
+  --create-namespace \
+  --values helm/monitoring/values-prod.yaml
+
+# Verify
+kubectl get pods -n monitoring
+helm list -n monitoring
+
+# Run tests
+promtool test rules tests/alerts-test.yml
+
+# Backup
+./scripts/backup-monitoring.sh
+```
+
+### 🚀 Бонус (новое)
+
+**1. Monitoring as Code with Jsonnet**:
+
+`jsonnet/dashboards/application.jsonnet`:
+```jsonnet
+local grafana = import 'grafonnet/grafana.libsonnet';
+local dashboard = grafana.dashboard;
+local row = grafana.row;
+local prometheus = grafana.prometheus;
+local graphPanel = grafana.graphPanel;
+local statPanel = grafana.statPanel;
+
+dashboard.new(
+  'Application Metrics',
+  tags=['application', 'monitoring'],
+  editable=true,
+)
+.addRow(
+  row.new(title='Request Metrics')
+  .addPanel(
+    graphPanel.new(
+      'Request Rate',
+      datasource='Prometheus',
+      format='reqps',
+    )
+    .addTarget(
+      prometheus.target(
+        'sum(rate(http_requests_total[5m])) by (service)',
+        legendFormat='{{service}}',
+      )
+    )
+  )
+  .addPanel(
+    statPanel.new(
+      'Error Rate',
+      datasource='Prometheus',
+      unit='percentunit',
+    )
+    .addTarget(
+      prometheus.target(
+        'sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))',
+      )
+    )
+    .addThresholds([
+      { value: 0, color: 'green' },
+      { value: 0.01, color: 'yellow' },
+      { value: 0.05, color: 'red' },
+    ])
+  )
+)
+```
+
+Компиляция:
+```bash
+jsonnet -J vendor dashboards/application.jsonnet > dashboards/application.json
+```
+
+**2. Monitoring Configuration Testing Framework**:
+
+`tests/integration_test.py`:
+```python
+#!/usr/bin/env python3
+"""
+Integration tests для monitoring stack
+"""
+import requests
+import time
+import pytest
+
+PROMETHEUS_URL = "http://localhost:9090"
+GRAFANA_URL = "http://localhost:3000"
+ALERTMANAGER_URL = "http://localhost:9093"
+
+class TestPrometheus:
+    def test_prometheus_healthy(self):
+        """Test Prometheus health"""
+        response = requests.get(f"{PROMETHEUS_URL}/-/healthy")
+        assert response.status_code == 200
+    
+    def test_prometheus_targets(self):
+        """Test all targets are up"""
+        response = requests.get(f"{PROMETHEUS_URL}/api/v1/targets")
+        data = response.json()
+        
+        active_targets = data['data']['activeTargets']
+        down_targets = [t for t in active_targets if t['health'] != 'up']
+        
+        assert len(down_targets) == 0, f"Down targets: {down_targets}"
+    
+    def test_prometheus_rules_loaded(self):
+        """Test alert rules are loaded"""
+        response = requests.get(f"{PROMETHEUS_URL}/api/v1/rules")
+        data = response.json()
+        
+        groups = data['data']['groups']
+        assert len(groups) > 0, "No alert rule groups found"
+    
+    def test_query_works(self):
+        """Test PromQL queries work"""
+        query = "up"
+        response = requests.get(
+            f"{PROMETHEUS_URL}/api/v1/query",
+            params={'query': query}
+        )
+        data = response.json()
+        
+        assert data['status'] == 'success'
+        assert len(data['data']['result']) > 0
+
+class TestGrafana:
+    def test_grafana_healthy(self):
+        """Test Grafana health"""
+        response = requests.get(f"{GRAFANA_URL}/api/health")
+        assert response.status_code == 200
+    
+    def test_datasources_configured(self):
+        """Test datasources are configured"""
+        response = requests.get(
+            f"{GRAFANA_URL}/api/datasources",
+            auth=('admin', 'admin')
+        )
+        datasources = response.json()
+        
+        assert len(datasources) > 0, "No datasources configured"
+        
+        # Check Prometheus datasource
+        prometheus_ds = [ds for ds in datasources if ds['type'] == 'prometheus']
+        assert len(prometheus_ds) > 0, "Prometheus datasource not found"
+    
+    def test_dashboards_exist(self):
+        """Test dashboards are provisioned"""
+        response = requests.get(
+            f"{GRAFANA_URL}/api/search",
+            auth=('admin', 'admin')
+        )
+        dashboards = response.json()
+        
+        assert len(dashboards) > 0, "No dashboards found"
+
+class TestAlertmanager:
+    def test_alertmanager_healthy(self):
+        """Test Alertmanager health"""
+        response = requests.get(f"{ALERTMANAGER_URL}/-/healthy")
+        assert response.status_code == 200
+    
+    def test_alertmanager_config(self):
+        """Test Alertmanager configuration is valid"""
+        response = requests.get(f"{ALERTMANAGER_URL}/api/v2/status")
+        data = response.json()
+        
+        assert 'config' in data
+        assert 'original' in data['config']
+
+class TestEndToEnd:
+    def test_alert_flow(self):
+        """Test complete alert flow"""
+        # 1. Trigger alert by sending bad metrics
+        # 2. Wait for alert to fire
+        # 3. Check alert in Alertmanager
+        # 4. Verify notification sent
+        
+        # Wait for alert to evaluate
+        time.sleep(60)
+        
+        # Check for firing alerts
+        response = requests.get(f"{ALERTMANAGER_URL}/api/v2/alerts")
+        alerts = response.json()
+        
+        # Should have some alerts
+        assert isinstance(alerts, list)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
+```
+
+**3. Automated Dashboard Sync**:
+
+`scripts/sync-dashboards.py`:
+```python
+#!/usr/bin/env python3
+"""
+Sync Grafana dashboards between environments
+"""
+import requests
+import json
+import os
+from pathlib import Path
+
+class GrafanaDashboardSync:
+    def __init__(self, source_url, target_url, api_key):
+        self.source_url = source_url
+        self.target_url = target_url
+        self.headers = {'Authorization': f'Bearer {api_key}'}
+    
+    def export_dashboards(self, output_dir):
+        """Export all dashboards from source"""
+        # Search all dashboards
+        response = requests.get(
+            f"{self.source_url}/api/search?type=dash-db",
+            headers=self.headers
+        )
+        dashboards = response.json()
+        
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        
+        for dash in dashboards:
+            uid = dash['uid']
+            title = dash['title']
+            
+            # Get dashboard JSON
+            response = requests.get(
+                f"{self.source_url}/api/dashboards/uid/{uid}",
+                headers=self.headers
+            )
+            dashboard_json = response.json()
+            
+            # Save to file
+            filename = f"{output_dir}/{uid}_{title.replace(' ', '_')}.json"
+            with open(filename, 'w') as f:
+                json.dump(dashboard_json, f, indent=2)
+            
+            print(f"Exported: {title}")
+    
+    def import_dashboards(self, input_dir):
+        """Import dashboards to target"""
+        for file_path in Path(input_dir).glob('*.json'):
+            with open(file_path, 'r') as f:
+                dashboard_data = json.load(f)
+            
+            # Prepare import payload
+            payload = {
+                'dashboard': dashboard_data['dashboard'],
+                'folderId': 0,
+                'overwrite': True
+            }
+            
+            # Import dashboard
+            response = requests.post(
+                f"{self.target_url}/api/dashboards/db",
+                headers=self.headers,
+                json=payload
+            )
+            
+            if response.status_code == 200:
+                print(f"Imported: {file_path.name}")
+            else:
+                print(f"Failed to import {file_path.name}: {response.text}")
+
+if __name__ == "__main__":
+    import argparse
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--source', required=True)
+    parser.add_argument('--target', required=True)
+    parser.add_argument('--api-key', required=True)
+    parser.add_argument('--export-dir', default='./dashboards')
+    parser.add_argument('--action', choices=['export', 'import', 'sync'], required=True)
+    
+    args = parser.parse_args()
+    
+    sync = GrafanaDashboardSync(args.source, args.target, args.api_key)
+    
+    if args.action in ['export', 'sync']:
+        sync.export_dashboards(args.export_dir)
+    
+    if args.action in ['import', 'sync']:
+        sync.import_dashboards(args.export_dir)
+```
+
+**4. Cost Optimization для Cloud Monitoring**:
+
+`terraform/modules/cost-optimization/main.tf`:
+```hcl
+# Intelligent tiering для Prometheus storage
+resource "aws_s3_bucket" "prometheus_long_term" {
+  bucket = "prometheus-long-term-storage"
+  
+  lifecycle_rule {
+    enabled = true
+    
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+    
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+    
+    expiration {
+      days = 365
+    }
+  }
+}
+
+# Spot instances для non-critical monitoring
+resource "aws_autoscaling_group" "monitoring_workers" {
+  name = "monitoring-workers"
+  
+  mixed_instances_policy {
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.monitoring.id
+      }
+      
+      override {
+        instance_type = "t3.medium"
+      }
+      
+      override {
+        instance_type = "t3a.medium"
+      }
+    }
+    
+    instances_distribution {
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 0
+      spot_allocation_strategy                 = "capacity-optimized"
+    }
+  }
+}
+```
+
+---
+
+## Итоги модуля 8
+
+После прохождения этого модуля ты должен уметь:
+
+✅ Использовать Terraform для управления Grafana
+✅ Создавать Ansible playbooks для deployment monitoring
+✅ Работать с Helm charts для Kubernetes
+✅ Настраивать GitOps с ArgoCD
+✅ Писать CI/CD pipelines для мониторинга
+✅ Создавать automated backups
+✅ Тестировать monitoring конфигурацию
+✅ Синхронизировать dashboards между окружениями
+✅ Оптимизировать затраты на мониторинг
+✅ Version control всей monitoring инфраструктуры
+
+**Ключевые принципы:**
+1. Вся инфраструктура в Git
+2. Автоматизация deployment
+3. Тестирование перед production
+4. Регулярные backups
+5. Environment parity (dev/staging/prod одинаковые)
+6. Документирование изменений
+7. Cost optimization
+
+**Следующий модуль:** SLI/SLO/SLA и Error Budget - продвинутый мониторинг надежности
+
+
+## Модуль 9: Kubernetes Monitoring - мониторинг контейнеров и оркестрации (45 минут)
+
+### 🎯 Напоминалка
+
+**Kubernetes архитектура и компоненты:**
+
+```
+┌─────────────────────────────────────────┐
+│           Control Plane                 │
+│  ┌──────────┐  ┌──────────┐            │
+│  │   API    │  │  etcd    │            │
+│  │  Server  │  │          │            │
+│  └──────────┘  └──────────┘            │
+│  ┌──────────┐  ┌──────────┐            │
+│  │Scheduler │  │Controller│            │
+│  │          │  │ Manager  │            │
+│  └──────────┘  └──────────┘            │
+└─────────────────────────────────────────┘
+              │
+    ┌─────────┴─────────┐
+    │                   │
+┌───▼────┐         ┌────▼───┐
+│ Node 1 │         │ Node 2 │
+│        │         │        │
+│ ┌────┐ │         │ ┌────┐ │
+│ │Pod │ │         │ │Pod │ │
+│ │    │ │         │ │    │ │
+│ └────┘ │         │ └────┘ │
+│ ┌────┐ │         │ ┌────┐ │
+│ │Pod │ │         │ │Pod │ │
+│ └────┘ │         │ └────┘ │
+│        │         │        │
+│kubelet │         │kubelet │
+└────────┘         └────────┘
+```
+
+**Уровни мониторинга K8s:**
+
+```
+┌──────────────────────────────────────┐
+│  Application Level                   │  - Бизнес метрики
+│  (ваше приложение)                   │  - Custom metrics
+├──────────────────────────────────────┤
+│  Container Level                     │  - CPU, Memory, Network
+│  (Docker/containerd)                 │  - Restart count
+├──────────────────────────────────────┤
+│  Pod Level                           │  - Pod status
+│  (K8s workload)                      │  - Resource limits
+├──────────────────────────────────────┤
+│  Node Level                          │  - Node resources
+│  (Worker nodes)                      │  - Disk, Network
+├──────────────────────────────────────┤
+│  Cluster Level                       │  - API server health
+│  (Control plane)                     │  - etcd, scheduler
+└──────────────────────────────────────┘
+```
+
+**Ключевые метрики K8s:**
+
+**Cluster metrics:**
+
+```
+- Общее количество nodes
+- Nodes ready/not ready
+- Total CPU/Memory capacity
+- Total CPU/Memory usage
+- API server request rate
+- API server latency
+- etcd latency
+- Scheduler latency
+```
+
+**Node metrics:**
+
+```
+- CPU usage/limits
+- Memory usage/limits
+- Disk usage/IOPS
+- Network traffic
+- Pod count per node
+- Node conditions (Ready, DiskPressure, MemoryPressure)
+```
+
+**Pod metrics:**
+
+```
+- CPU usage/requests/limits
+- Memory usage/requests/limits
+- Restart count
+- Pod phase (Pending, Running, Failed, Succeeded)
+- Container state
+- Network I/O
+```
+
+**Container metrics:**
+
+```
+- CPU usage
+- Memory usage (RSS, cache, swap)
+- Disk I/O
+- Network I/O
+- OOM kills
+```
+
+**Важные K8s состояния:**
+
+```
+Pod Phases:
+- Pending     - Ждет scheduling
+- Running     - Запущен на node
+- Succeeded   - Все контейнеры успешно завершились
+- Failed      - Хотя бы один контейнер failed
+- Unknown     - Состояние неизвестно
+
+Container States:
+- Waiting     - Ждет запуска
+- Running     - Выполняется
+- Terminated  - Завершен
+
+Node Conditions:
+- Ready              - Node готов принимать pods
+- MemoryPressure     - Мало памяти
+- DiskPressure       - Мало места на диске
+- PIDPressure        - Много процессов
+- NetworkUnavailable - Проблемы с сетью
+```
+
+**Prometheus в Kubernetes:**
+
+```
+┌─────────────────────────────────────────┐
+│         Prometheus Operator             │
+│                                         │
+│  Автоматизирует:                        │
+│  - Deployment Prometheus                │
+│  - Service Discovery                    │
+│  - Scrape configuration                 │
+│  - Alert rules                          │
+│  - ServiceMonitor CRDs                  │
+└─────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────┐
+│      Prometheus Server(s)               │
+│                                         │
+│  Собирает метрики с:                    │
+│  - kubelet (cAdvisor)                   │
+│  - API server                           │
+│  - Node exporters                       │
+│  - Application pods                     │
+└─────────────────────────────────────────┘
+```
+
+**Kube-state-metrics vs Metrics Server:**
+
+```
+Metrics Server:
+- Базовые CPU/Memory метрики
+- Для Horizontal Pod Autoscaler (HPA)
+- Для kubectl top
+- Real-time данные
+- Не хранит историю
+
+Kube-state-metrics:
+- Метрики о K8s объектах (Deployments, Pods, etc)
+- Состояние кластера
+- Для мониторинга и alerting
+- Экспортирует в Prometheus формате
+- Дополняет Metrics Server
+```
+
+**ServiceMonitor и PodMonitor:**
+
+yaml
+
+```yaml
+# ServiceMonitor - автоматический scraping через Service
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: my-app
+  labels:
+    team: backend
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+# PodMonitor - прямой scraping pods
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: my-app-pods
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  podMetricsEndpoints:
+  - port: metrics
+    interval: 30s
+```
+
+**Resource Requests и Limits:**
+
+yaml
+
+```yaml
+resources:
+  requests:
+    cpu: 100m        # Гарантированно получит
+    memory: 128Mi
+  limits:
+    cpu: 500m        # Максимум может использовать
+    memory: 512Mi    # OOM kill если превысит
+
+QoS Classes:
+1. Guaranteed  - requests == limits (приоритет highest)
+2. Burstable   - requests < limits
+3. BestEffort  - нет requests/limits (приоритет lowest)
+```
+
+**Horizontal Pod Autoscaler (HPA):**
+
+yaml
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-app-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70  # Target 70% CPU
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+```
+
+**Vertical Pod Autoscaler (VPA):**
+
+yaml
+
+```yaml
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: my-app-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: my-app
+  updatePolicy:
+    updateMode: "Auto"  # Auto, Recreate, Initial, Off
+  resourcePolicy:
+    containerPolicies:
+    - containerName: app
+      minAllowed:
+        cpu: 100m
+        memory: 128Mi
+      maxAllowed:
+        cpu: 2
+        memory: 2Gi
+```
+
+**Важные PromQL запросы для K8s:**
+
+promql
+
+````promql
+# CPU
+## Node CPU usage
+100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+
+## Pod CPU usage
+sum(rate(container_cpu_usage_seconds_total{pod!=""}[5m])) by (pod, namespace)
+
+## CPU throttling
+rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0
+
+# Memory
+## Pod memory usage
+sum(container_memory_working_set_bytes{pod!=""}) by (pod, namespace)
+
+## Memory usage vs limit
+sum(container_memory_working_set_bytes{pod!=""}) by (pod)
+/
+sum(container_spec_memory_limit_bytes{pod!=""}) by (pod) * 100
+
+## OOM kills
+rate(container_oom_events_total[5m]) > 0
+
+# Disk
+## Disk usage per node
+(1 - (node_filesystem_avail_bytes{mountpoint="/"} 
+/ node_filesystem_size_bytes{mountpoint="/"})) * 100
+
+## Pod disk I/O
+rate(container_fs_reads_bytes_total[5m])
+rate(container_fs_writes_bytes_total[5m])
+
+# Network
+## Pod network traffic
+rate(container_network_receive_bytes_total[5m])
+rate(container_network_transmit_bytes_total[5m])
+
+## Network errors
+rate(container_network_receive_errors_total[5m])
+rate(container_network_transmit_errors_total[5m])
+
+# Kubernetes objects
+## Pods not ready
+kube_pod_status_phase{phase!~"Running|Succeeded"} > 0
+
+## Deployment replicas mismatch
+kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+
+## Pod restarts
+rate(kube_pod_container_status_restarts_total[15m]) > 0
+
+## Failed pods
+kube_pod_status_phase{phase="Failed"} > 0
+
+## Pending pods (долго)
+kube_pod_status_phase{phase="Pending"} > 0
+
+# Resources
+## CPU requests vs limits
+sum(kube_pod_container_resource_requests{resource="cpu"})
+/
+sum(kube_pod_container_resource_limits{resource="cpu"})
+
+## Memory requests vs limits
+sum(kube_pod_container_resource_requests{resource="memory"})
+/
+sum(kube_pod_container_resource_limits{resource="memory"})
+
+## Node capacity vs allocatable
+sum(kube_node_status_capacity{resource="cpu"})
+sum(kube_node_status_allocatable{resource="cpu"})
+
+# API Server
+## Request rate
+rate(apiserver_request_total[5m])
+
+## Request latency
+histogram_quantile(0.99, 
+  rate(apiserver_request_duration_seconds_bucket[5m])
+)
+
+## Request errors
+rate(apiserver_request_total{code=~"5.."}[5m])
+
+# etcd
+## Leader changes
+rate(etcd_server_leader_changes_seen_total[5m])
+
+## Proposal failures
+rate(etcd_server_proposals_failed_total[5m])
+
+## DB size
+etcd_mvcc_db_total_size_in_bytes
+
+# Scheduler
+## Scheduling latency
+histogram_quantile(0.99,
+  rate(scheduler_scheduling_duration_seconds_bucket[5m])
+)
+
+## Pending pods in queue
+scheduler_pending_pods
+
+# HPA
+## Current replicas vs desired
+kube_horizontalpodautoscaler_status_current_replicas
+vs
+kube_horizontalpodautoscaler_status_desired_replicas
+
+## HPA metric value
+kube_horizontalpodautoscaler_status_current_metrics_value
+````
+
+**Лучшие практики K8s мониторинга:**
+````
+1. ✅ Всегда устанавливай resource requests/limits
+2. ✅ Мониторь все уровни: cluster → node → pod → container
+3. ✅ Используй ServiceMonitor для auto-discovery
+4. ✅ Настрой alerting на Pod restarts и OOM kills
+5. ✅ Отслеживай CPU throttling
+6. ✅ Мониторь kube-state-metrics для объектов K8s
+7. ✅ Используй HPA для auto-scaling
+8. ✅ Настрой PodDisruptionBudget для availability
+9. ✅ Мониторь control plane компоненты
+10. ✅ Используй namespace для изоляции и multi-tenancy
+11. ✅ Экспортируй метрики приложений через /metrics endpoint
+12. ✅ Используй labels для организации и filtering
+````
+
+**Namespace isolation:**
+
+yaml
+
+```yaml
+# ResourceQuota - ограничения на namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-quota
+  namespace: production
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "10"
+    pods: "50"
+
+# LimitRange - default limits для pods
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: default-limits
+  namespace: production
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+```
+
+**PodDisruptionBudget (для HA):**
+
+yaml
+
+```yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: my-app-pdb
+spec:
+  minAvailable: 2  # или maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: my-app
+```
+
+**Liveness и Readiness проbes:**
+
+yaml
+
+````yaml
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+# Startup probe (для медленных приложений)
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  failureThreshold: 30  # 300s total
+````
+
+**Типичные проблемы и их диагностика:**
+```
+Проблема: Pod постоянно restarts
+Диагностика:
+- kubectl describe pod <pod-name>
+- kubectl logs <pod-name> --previous
+- Проверь liveness probe
+- Проверь OOM kills: kube_pod_container_status_terminated_reason{reason="OOMKilled"}
+
+Проблема: High CPU throttling
+Диагностика:
+- rate(container_cpu_cfs_throttled_seconds_total[5m])
+- Увеличь CPU limits или оптимизируй код
+
+Проблема: Pod Pending долго
+Диагностика:
+- kubectl describe pod <pod-name>
+- Проверь Events
+- Причины: insufficient resources, node selector mismatch, PVC issues
+
+Проблема: High memory usage
+Диагностика:
+- container_memory_working_set_bytes
+- Проверь memory leaks
+- Настрой VPA для автоматической оптимизации
+
+Проблема: Slow API requests
+Диагностика:
+- apiserver_request_duration_seconds
+- Проверь etcd latency
+- Масштабируй API server replicas
+```
+
+**Grafana dashboards для K8s:**
+````
+Рекомендуемые community dashboards:
+
+1. Kubernetes Cluster Monitoring (315)
+   - Общий обзор кластера
+   - Nodes, Pods, CPU, Memory
+
+2. Kubernetes / Compute Resources / Cluster (7249)
+   - Resource usage по namespace
+   - Requests vs Limits
+
+3. Kubernetes / Compute Resources / Namespace (Pods) (7630)
+   - Детальная информация по pods
+
+4. Node Exporter Full (1860)
+   - Детали по nodes
+
+5. Kubernetes apiserver (12006)
+   - API server metrics
+
+Импорт: Grafana → Dashboards → Import → ID
+````
+
+### 💻 Задание
+
+Настрой полноценный мониторинг Kubernetes кластера:
+
+1. **Создай локальный K8s кластер с kind**:
+
+`kind-config.yaml`:
+
+yaml
+
+```yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: monitoring-cluster
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.29.0
+    extraPortMappings:
+      - containerPort: 30000
+        hostPort: 9090
+        protocol: TCP
+      - containerPort: 30001
+        hostPort: 3000
+        protocol: TCP
+      - containerPort: 30002
+        hostPort: 16686
+        protocol: TCP
+  - role: worker
+    image: kindest/node:v1.29.0
+  - role: worker
+    image: kindest/node:v1.29.0
+```
+
+Создай кластер:
+
+bash
+
+```bash
+# Установи kind если нет
+# Mac: brew install kind
+# Linux: curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+
+# Создай кластер
+kind create cluster --config kind-config.yaml
+
+# Проверь
+kubectl cluster-info
+kubectl get nodes
+```
+
+2. **Установи kube-prometheus-stack (Prometheus Operator)**:
+
+bash
+
+```bash
+# Добавь Helm repo
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Создай namespace
+kubectl create namespace monitoring
+
+# Установи kube-prometheus-stack
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+  --set prometheus.service.type=NodePort \
+  --set prometheus.service.nodePort=30000 \
+  --set grafana.service.type=NodePort \
+  --set grafana.service.nodePort=30001 \
+  --set grafana.adminPassword=admin
+
+# Проверь установку
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
+```
+
+3. **Создай demo приложение с метриками**:
+
+`k8s-manifests/demo-app-deployment.yaml`:
+
+yaml
+
+````yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-app
+  namespace: demo-app
+  labels:
+    app: demo-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: demo-app
+  template:
+    metadata:
+      labels:
+        app: demo-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: app
+        image: quay.io/brancz/prometheus-example-app:v0.5.0
+        ports:
+        - containerPort: 8080
+          name: metrics
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-app
+  namespace: demo-app
+  labels:
+    app: demo-app
+spec:
+  selector:
+    app: demo-app
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: metrics
+  type: ClusterIP
+
+---
+# ServiceMonitor для автоматического scraping
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: demo-app
+  namespace: demo-app
+  labels:
+    app: demo-app
+spec:
+  selector:
+    matchLabels:
+      app: demo-app
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# HPA для автомасштабирования
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: demo-app-hpa
+  namespace: demo-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: demo-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+
+---
+# PodDisruptionBudget для HA
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: demo-app-pdb
+  namespace: demo-app
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: demo-app
+
+---
+# ResourceQuota для namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: demo-app-quota
+  namespace: demo-app
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    pods: "20"
+````
+
+Примени:
+
+bash
+
+```bash
+kubectl apply -f k8s-manifests/demo-app-deployment.yaml
+
+# Проверь
+kubectl get all -n demo-app
+kubectl get servicemonitor -n demo-app
+kubectl get hpa -n demo-app
+```
+
+4. **Создай PrometheusRule для alerting**:
+
+`k8s-manifests/prometheus-rules.yaml`:
+
+yaml
+
+````yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: kubernetes-alerts
+  namespace: monitoring
+  labels:
+    prometheus: kube-prometheus
+spec:
+  groups:
+  - name: kubernetes.rules
+    interval: 30s
+    rules:
+    # Pod alerts
+    - alert: PodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: pod
+      annotations:
+        summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+        description: "Pod has restarted {{ $value }} times in the last 15 minutes"
+        dashboard: "http://localhost:3000/d/kubernetes-pods"
+
+    - alert: PodNotReady
+      expr: |
+        sum by (namespace, pod) (
+          kube_pod_status_phase{phase!~"Running|Succeeded"}
+        ) > 0
+      for: 10m
+      labels:
+        severity: warning
+        component: pod
+      annotations:
+        summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} not ready"
+        description: "Pod has been in {{ $labels.phase }} state for more than 10 minutes"
+
+    - alert: PodOOMKilled
+      expr: |
+        sum by (namespace, pod) (
+          rate(kube_pod_container_status_terminated_reason{reason="OOMKilled"}[5m])
+        ) > 0
+      for: 1m
+      labels:
+        severity: critical
+        component: pod
+      annotations:
+        summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} OOMKilled"
+        description: "Pod was killed due to out of memory"
+        runbook: "Increase memory limits or fix memory leak"
+
+    # Container alerts
+    - alert: ContainerCPUThrottling
+      expr: |
+        rate(container_cpu_cfs_throttled_seconds_total[5m]) > 0.5
+      for: 10m
+      labels:
+        severity: warning
+        component: container
+      annotations:
+        summary: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} CPU throttling"
+        description: "Container is being throttled {{ $value | humanizePercentage }}"
+        runbook: "Increase CPU limits"
+
+    - alert: ContainerHighMemoryUsage
+      expr: |
+        (
+          sum by (namespace, pod, container) (container_memory_working_set_bytes)
+          /
+          sum by (namespace, pod, container) (container_spec_memory_limit_bytes)
+        ) > 0.9
+      for: 5m
+      labels:
+        severity: warning
+        component: container
+      annotations:
+        summary: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} high memory"
+        description: "Memory usage is {{ $value | humanizePercentage }}"
+
+    # Deployment alerts
+    - alert: DeploymentReplicasMismatch
+      expr: |
+        kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+      for: 10m
+      labels:
+        severity: warning
+        component: deployment
+      annotations:
+        summary: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} replicas mismatch"
+        description: "Desired: {{ $value }}, Available: {{ $labels.replicas_available }}"
+
+    # Node alerts
+    - alert: NodeNotReady
+      expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+      for: 5m
+      labels:
+        severity: critical
+        component: node
+      annotations:
+        summary: "Node {{ $labels.node }} not ready"
+        description: "Node has been unready for more than 5 minutes"
+
+    - alert: NodeHighCPUUsage
+      expr: |
+        100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 10m
+      labels:
+        severity: warning
+        component: node
+      annotations:
+        summary: "Node {{ $labels.instance }} high CPU"
+        description: "CPU usage is {{ $value | humanize }}%"
+
+    - alert: NodeHighMemoryUsage
+      expr: |
+        (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+      for: 5m
+      labels:
+        severity: warning
+        component: node
+      annotations:
+        summary: "Node {{ $labels.instance }} high memory"
+        description: "Memory usage is {{ $value | humanize }}%"
+
+    - alert: NodeDiskPressure
+      expr: kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+      for: 5m
+      labels:
+        severity: critical
+        component: node
+      annotations:
+        summary: "Node {{ $labels.node }} disk pressure"
+        description: "Node is experiencing disk pressure"
+
+    # HPA alerts
+    - alert: HPAMaxedOut
+      expr: |
+        kube_horizontalpodautoscaler_status_current_replicas
+        ==
+        kube_horizontalpodautoscaler_spec_max_replicas
+      for: 15m
+      labels:
+        severity: warning
+        component: hpa
+      annotations:
+        summary: "HPA {{ $labels.namespace }}/{{ $labels.horizontalpodautoscaler }} maxed out"
+        description: "HPA has been at max replicas ({{ $value }}) for 15 minutes"
+        runbook: "Consider increasing max replicas"
+
+    - alert: HPAScalingDisabled
+      expr: |
+        kube_horizontalpodautoscaler_status_condition{condition="ScalingActive",status="false"} == 1
+      for: 5m
+      labels:
+        severity: warning
+        component: hpa
+      annotations:
+        summary: "HPA {{ $labels.namespace }}/{{ $labels.horizontalpodautoscaler }} scaling disabled"
+        description: "HPA is unable to compute metrics"
+
+    # Control plane alerts
+    - alert: APIServerHighLatency
+      expr: |
+        histogram_quantile(0.99,
+          sum by (le) (rate(apiserver_request_duration_seconds_bucket[5m]))
+        ) > 1
+      for: 5m
+      labels:
+        severity: warning
+        component: apiserver
+      annotations:
+        summary: "API Server high latency"
+        description: "P99 latency is {{ $value }}s"
+
+    - alert: APIServerErrorRate
+      expr: |
+        sum(rate(apiserver_request_total{code=~"5.."}[5m]))
+        /
+        sum(rate(apiserver_request_total[5m])) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        component: apiserver
+      annotations:
+        summary: "API Server high error rate"
+        description: "Error rate is {{ $value | humanizePercentage }}"
+
+    - alert: EtcdHighLatency
+      expr: |
+        histogram_quantile(0.99,
+          rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])
+        ) > 0.5
+      for: 5m
+      labels:
+        severity: warning
+        component: etcd
+      annotations:
+        summary: "etcd high latency"
+        description: "P99 fsync latency is {{ $value }}s"
+
+    # PersistentVolume alerts
+    - alert: PersistentVolumeFillingUp
+      expr: |
+        (
+          kubelet_volume_stats_available_bytes
+          /
+          kubelet_volume_stats_capacity_bytes
+        ) < 0.1
+      for: 5m
+      labels:
+        severity: warning
+        component: pv
+      annotations:
+        summary: "PV {{ $labels.persistentvolumeclaim }} filling up"
+        description: "Only {{ $value | humanizePercentage }} available"
+
+````
+
+Примени:
+```bash
+kubectl apply -f k8s-manifests/prometheus-rules.yaml
+
+# Проверь rules в Prometheus
+kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
+# Открой http://localhost:9090/rules
+```
+
+5. **Создай load generator для тестирования**:
+
+`k8s-manifests/load-generator.yaml`:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+  namespace: demo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: load-generator
+  template:
+    metadata:
+      labels:
+        app: load-generator
+    spec:
+      containers:
+      - name: load-generator
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            # Нормальные запросы
+            for i in $(seq 1 10); do
+              wget -q -O- http://demo-app.demo-app.svc.cluster.local:8080/ > /dev/null 2>&1
+              sleep 0.1
+            done
+            
+            # Случайные медленные запросы
+            if [ $((RANDOM % 10)) -eq 0 ]; then
+              echo "Generating slow request..."
+              wget -q -O- http://demo-app.demo-app.svc.cluster.local:8080/?sleep=3 > /dev/null 2>&1
+            fi
+            
+            sleep 1
+          done
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+
+---
+# Job для стресс-теста
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: stress-test
+  namespace: demo-app
+spec:
+  parallelism: 5
+  completions: 5
+  template:
+    spec:
+      containers:
+      - name: stress
+        image: busybox:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Starting stress test..."
+          for i in $(seq 1 100); do
+            wget -q -O- http://demo-app.demo-app.svc.cluster.local:8080/ > /dev/null 2>&1 &
+          done
+          wait
+          echo "Stress test complete"
+      restartPolicy: Never
+  backoffLimit: 4
+```
+
+Примени:
+```bash
+kubectl apply -f k8s-manifests/load-generator.yaml
+
+# Запусти стресс-тест
+kubectl apply -f k8s-manifests/load-generator.yaml
+
+# Наблюдай за HPA
+watch kubectl get hpa -n demo-app
+
+# Проверь pods
+watch kubectl get pods -n demo-app
+```
+
+6. **Доступ к UI**:
+```bash
+# Prometheus
+kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
+# http://localhost:9090
+
+# Grafana (admin/admin)
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+# http://localhost:3000
+
+# Или через NodePort (если kind с portMapping)
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000
+```
+
+7. **Создай custom Grafana dashboard**:
+
+Сохрани как `k8s-dashboard.json` и импортируй в Grafana:
+```json
+{
+  "dashboard": {
+    "title": "Kubernetes Cluster Overview",
+    "tags": ["kubernetes", "cluster"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "stat",
+        "title": "Cluster Status",
+        "targets": [
+          {
+            "expr": "sum(kube_node_status_condition{condition=\"Ready\",status=\"true\"})",
+            "legendFormat": "Ready Nodes"
+          },
+          {
+            "expr": "sum(kube_pod_status_phase{phase=\"Running\"})",
+            "legendFormat": "Running Pods"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "timeseries",
+        "title": "Cluster CPU Usage",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace)",
+            "legendFormat": "{{ namespace }}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "timeseries",
+        "title": "Cluster Memory Usage",
+        "targets": [
+          {
+            "expr": "sum(container_memory_working_set_bytes) by (namespace)",
+            "legendFormat": "{{ namespace }}"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "table",
+        "title": "Top Pods by CPU",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace, pod))",
+            "format": "table",
+            "instant": true
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+8. **Тестирование и валидация**:
+```bash
+# Проверь все метрики собираются
+kubectl exec -n monitoring prometheus-kube-prometheus-prometheus-0 -- \
+  promtool query instant http://localhost:9090 'up'
+
+# Проверь ServiceMonitor обнаружен
+kubectl get servicemonitor -A
+
+# Проверь targets в Prometheus
+# http://localhost:9090/targets
+
+# Проверь alerts
+# http://localhost:9090/alerts
+
+# Симулируй проблемы
+# OOMKill
+kubectl run oom-test --image=polinux/stress --restart=Never -- \
+  stress --vm 1 --vm-bytes 1G --timeout 10s
+
+# CPU stress для HPA
+kubectl run cpu-stress --image=polinux/stress --restart=Never -- \
+  stress --cpu 4 --timeout 60s
+
+# Наблюдай за scaling
+watch kubectl get hpa -n demo-app
+watch kubectl get pods -n demo-app
+```
+
+### 🚀 Бонус (новое)
+
+**1. Установи Metrics Server для kubectl top**:
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Для kind нужен патч (insecure TLS)
+kubectl patch deployment metrics-server -n kube-system --type='json' \
+  -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+
+# Проверь
+kubectl top nodes
+kubectl top pods -A
+```
+
+**2. Vertical Pod Autoscaler**:
+```bash
+# Установи VPA
+git clone https://github.com/kubernetes/autoscaler.git
+cd autoscaler/vertical-pod-autoscaler
+./hack/vpa-up.sh
+
+# Создай VPA для demo-app
+cat <<EOF | kubectl apply -f -
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: demo-app-vpa
+  namespace: demo-app
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: demo-app
+  updatePolicy:
+    updateMode: "Off"  # Рекомендации без автоприменения
+  resourcePolicy:
+    containerPolicies:
+    - containerName: app
+      minAllowed:
+        cpu: 50m
+        memory: 64Mi
+      maxAllowed:
+        cpu: 1
+        memory: 1Gi
+EOF
+
+# Проверь рекомендации
+kubectl describe vpa demo-app-vpa -n demo-app
+```
+
+**3. Kube-state-metrics custom metrics**:
+
+Создай ConfigMap с custom resource state metrics:
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-state-metrics-customresourcestate-config
+  namespace: monitoring
+data:
+  config.yaml: |
+    kind: CustomResourceStateMetrics
+    spec:
+      resources:
+        - groupVersionKind:
+            group: "apps"
+            version: "v1"
+            kind: "Deployment"
+          metricNamePrefix: "kube_deployment"
+          metrics:
+            - name: "replicas_custom"
+              help: "Custom deployment replicas metric"
+              each:
+                type: Gauge
+                gauge:
+                  path: [spec, replicas]
+```
+
+**4. Cost monitoring с OpenCost**:
+```bash
+# Установи OpenCost
+helm install opencost opencost/opencost \
+  --namespace opencost --create-namespace \
+  --set prometheus.internal.enabled=false \
+  --set prometheus.external.url=http://prometheus-kube-prometheus-prometheus.monitoring:9090
+
+# Port-forward
+kubectl port-forward -n opencost svc/opencost 9090:9090
+
+# Открой UI
+# http://localhost:9090
+```
+
+**5. Cluster autoscaler (для cloud)**:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cluster-autoscaler
+  template:
+    metadata:
+      labels:
+        app: cluster-autoscaler
+    spec:
+      serviceAccountName: cluster-autoscaler
+      containers:
+      - image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.29.0
+        name: cluster-autoscaler
+        command:
+        - ./cluster-autoscaler
+        - --cloud-provider=aws  # или gce, azure
+        - --nodes=2:10:worker-nodes
+        - --skip-nodes-with-local-storage=false
+        - --expander=least-waste
+        resources:
+          limits:
+            cpu: 100m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 300Mi
+```
+
+**6. Network Policy monitoring**:
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: demo-app-netpol
+  namespace: demo-app
+spec:
+  podSelector:
+    matchLabels:
+      app: demo-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: demo-app
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53  # DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443  # HTTPS
+```
+
+**7. Создай script для анализа проблем**:
+
+`k8s-troubleshoot.sh`:
+```bash
+#!/bin/bash
+
+echo "=== Kubernetes Cluster Health Check ==="
+echo ""
+
+# Nodes
+echo "📦 Nodes Status:"
+kubectl get nodes -o wide
+echo ""
+
+echo "⚠️  Not Ready Nodes:"
+kubectl get nodes --field-selector spec.unschedulable=false | grep -v "Ready" || echo "All nodes ready"
+echo ""
+
+# Pods
+echo "🔴 Failed/Pending Pods:"
+kubectl get pods -A --field-selector status.phase!=Running,status.phase!=Succeeded
+echo ""
+
+echo "🔄 Restarting Pods (last hour):"
+kubectl get pods -A -o json | jq -r '.items[] | select(.status.containerStatuses[]?.restartCount > 0) | "\(.metadata.namespace)/\(.metadata.name): \(.status.containerStatuses[0].restartCount) restarts"'
+echo ""
+
+# Resources
+echo "📊 Top Resource Consumers:"
+echo "CPU:"
+kubectl top pods -A --sort-by=cpu | head -10
+echo ""
+echo "Memory:"
+kubectl top pods -A --sort-by=memory | head -10
+echo ""
+
+# Events
+echo "⚡ Recent Events (errors):"
+kubectl get events -A --sort-by='.lastTimestamp' | grep -i "error\|fail\|warning" | tail -20
+echo ""
+
+# HPA Status
+echo "📈 HPA Status:"
+kubectl get hpa -A
+echo ""
+
+# PVC Status
+echo "💾 PVC Status:"
+kubectl get pvc -A
+echo ""
+
+echo "=== Health Check Complete ==="
+```
+
+**8. Monitoring Helm chart values для production**:
+
+`prometheus-values-prod.yaml`:
+```yaml
+prometheus:
+  prometheusSpec:
+    retention: 30d
+    retentionSize: "50GB"
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 4Gi
+    
+    # High availability
+    replicas: 2
+    
+    # Remote write для long-term storage
+    remoteWrite:
+    - url: "http://thanos-receive:19291/api/v1/receive"
+    
+    # Service monitors
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+alertmanager:
+  alertmanagerSpec:
+    replicas: 3
+    storage:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+grafana:
+  replicas: 2
+  persistence:
+    enabled: true
+    size: 10Gi
+  
+  # SSO integration
+  grafana.ini:
+    auth.generic_oauth:
+      enabled: true
+      name: OAuth
+      allow_sign_up: true
+      client_id: your-client-id
+      client_secret: your-client-secret
+      scopes: openid profile email
+      auth_url: https://auth.example.com/authorize
+      token_url: https://auth.example.com/token
+      api_url: https://auth.example.com/userinfo
+
+# Node exporter на всех nodes
+prometheus-node-exporter:
+  tolerations:
+  - effect: NoSchedule
+    operator: Exists
+
+# Kube-state-metrics
+kube-state-metrics:
+  replicas: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+```
+
+---
+
+## Итоги модуля 9
+
+После прохождения этого модуля ты должен уметь:
+
+✅ Понимать архитектуру Kubernetes и уровни мониторинга
+✅ Устанавливать и настраивать kube-prometheus-stack
+✅ Создавать ServiceMonitor для auto-discovery
+✅ Писать PrometheusRule для K8s alerting
+✅ Настраивать HPA и VPA для autoscaling
+✅ Мониторить control plane компоненты
+✅ Анализировать pod restarts, OOM kills, CPU throttling
+✅ Создавать Grafana dashboards для K8s
+✅ Использовать kubectl top и Metrics Server
+✅ Настраивать ResourceQuota и LimitRange
+✅ Troubleshooting проблем в кластере
+✅ Интегрировать cost monitoring
+
+**Ключевые метрики K8s:**
+
+**Cluster:** Nodes ready, API latency, etcd health 
+**Nodes:** CPU/Memory usage, disk pressure 
+**Pods:** Restarts, OOM kills, phase 
+**Workload:** Replicas mismatch, HPA status 
+**Network:** Traffic, errors, latency
+
+
+**Production checklist:**
+- ✅ Настроены resource requests/limits для всех pods
+- ✅ HPA для критичных сервисов
+- ✅ PodDisruptionBudget для HA
+- ✅ Liveness/Readiness probes
+- ✅ Monitoring всех уровней (cluster → node → pod → container)
+- ✅ Alerting на критичные события
+- ✅ Grafana dashboards для всей команды
+- ✅ ServiceMonitor для всех приложений
+- ✅ ResourceQuota для namespaces
+- ✅ Network policies для security
+- ✅ Regular backup etcd
+- ✅ Cost tracking и optimization
+
+
+## Модуль 10: Мониторинг инфраструктуры и облачных сервисов (30 минут)
+
+### 🎯 Напоминалка
+
+**Уровни мониторинга инфраструктуры:**
+
+```
+┌─────────────────────────────────────┐
+│ Cloud Services (AWS/GCP/Azure)      │
+│ - EC2, S3, RDS, Lambda              │
+│ - Billing, Quotas, API limits       │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Kubernetes / Orchestration          │
+│ - Cluster health                    │
+│ - Pod/Node metrics                  │
+│ - Resource quotas                   │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Containers (Docker)                 │
+│ - Container metrics                 │
+│ - Image vulnerabilities             │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Infrastructure (VMs, Bare Metal)    │
+│ - CPU, Memory, Disk, Network        │
+│ - Hardware health                   │
+└─────────────────────────────────────┘
+         ▼
+┌─────────────────────────────────────┐
+│ Network                             │
+│ - Switches, Routers                 │
+│ - Bandwidth, Latency                │
+│ - SNMP, NetFlow                     │
+└─────────────────────────────────────┘
+```
+
+**Kubernetes мониторинг - ключевые компоненты:**
+
+yaml
+
+```yaml
+kube-state-metrics:
+  # Метрики о состоянии K8s объектов
+  - Deployments: replicas, available, unavailable
+  - Pods: phase, restarts, conditions
+  - Nodes: capacity, allocatable, conditions
+  - PersistentVolumes: phase, capacity
+  - Jobs: succeeded, failed, active
+
+metrics-server:
+  # Реальные метрики использования ресурсов
+  - CPU usage (по контейнерам/подам/нодам)
+  - Memory usage
+  - Используется для HPA
+
+cAdvisor:
+  # Container-level метрики
+  - CPU/Memory usage
+  - Network I/O
+  - Filesystem I/O
+  - Встроен в kubelet
+```
+
+**Cloud Provider метрики:**
+
+yaml
+
+````yaml
+AWS CloudWatch:
+  - EC2: CPU, Network, Disk I/O
+  - RDS: Connections, IOPS, Storage
+  - S3: Requests, Bandwidth, Storage
+  - Lambda: Invocations, Duration, Errors
+  - ELB: Request Count, Latency, HTTP codes
+  - Billing: Estimated charges
+
+GCP Monitoring:
+  - Compute Engine: CPU, Disk, Network
+  - Cloud SQL: Queries, Connections
+  - Cloud Storage: Operations, Bandwidth
+  - Cloud Functions: Executions, Memory
+  - Load Balancer: Request rate, Latency
+
+Azure Monitor:
+  - Virtual Machines: CPU, Memory, Disk
+  - SQL Database: DTU, Storage, Connections
+  - Storage: Transactions, Ingress/Egress
+  - Functions: Execution count, Duration
+  - Application Insights: APM метрики
+````
+
+**SNMP мониторинг (Network devices):**
+````
+SNMP OIDs (Object Identifiers):
+- .1.3.6.1.2.1.1.1.0        # System description
+- .1.3.6.1.2.1.1.3.0        # Uptime
+- .1.3.6.1.2.1.2.2.1.10.*   # Interface inbound octets
+- .1.3.6.1.2.1.2.2.1.16.*   # Interface outbound octets
+- .1.3.6.1.2.1.25.1.1.0     # Host CPU load
+
+SNMP Versions:
+v1: Basic, no encryption
+v2c: Community strings, better performance
+v3: Authentication + Encryption (рекомендуется)
+````
+
+**Cost Monitoring:**
+
+yaml
+
+```yaml
+Cloud Cost Metrics:
+  - Daily/Monthly spend by service
+  - Cost per application/team
+  - Unutilized resources
+  - Reserved vs On-Demand usage
+  - Savings opportunities
+
+Infrastructure Cost:
+  - Compute: Instance types, utilization
+  - Storage: Type, size, IOPS
+  - Network: Data transfer, NAT gateways
+  - Managed Services: RDS, Lambda, etc.
+```
+
+### 💻 Задание
+
+Настрой комплексный мониторинг Kubernetes кластера:
+
+1. **Установи kube-state-metrics**:
+
+yaml
+
+```yaml
+# kube-state-metrics-deployment.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-state-metrics
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - secrets
+      - nodes
+      - pods
+      - services
+      - resourcequotas
+      - replicationcontrollers
+      - limitranges
+      - persistentvolumeclaims
+      - persistentvolumes
+      - namespaces
+      - endpoints
+    verbs: ["list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - statefulsets
+      - daemonsets
+      - deployments
+      - replicasets
+    verbs: ["list", "watch"]
+  - apiGroups: ["batch"]
+    resources:
+      - cronjobs
+      - jobs
+    verbs: ["list", "watch"]
+  - apiGroups: ["autoscaling"]
+    resources:
+      - horizontalpodautoscalers
+    verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-state-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-state-metrics
+subjects:
+  - kind: ServiceAccount
+    name: kube-state-metrics
+    namespace: monitoring
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      serviceAccountName: kube-state-metrics
+      containers:
+        - name: kube-state-metrics
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.10.1
+          ports:
+            - name: http-metrics
+              containerPort: 8080
+            - name: telemetry
+              containerPort: 8081
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8081
+            initialDelaySeconds: 5
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
+  labels:
+    app: kube-state-metrics
+spec:
+  ports:
+    - name: http-metrics
+      port: 8080
+      targetPort: http-metrics
+    - name: telemetry
+      port: 8081
+      targetPort: telemetry
+  selector:
+    app: kube-state-metrics
+```
+
+Примени:
+
+bash
+
+```bash
+kubectl create namespace monitoring
+kubectl apply -f kube-state-metrics-deployment.yaml
+```
+
+2. **Настрой Prometheus для Kubernetes мониторинга**:
+
+Обнови `prometheus.yml`:
+
+yaml
+
+```yaml
+scrape_configs:
+  # ... существующие jobs
+
+  # Kubernetes API server
+  - job_name: 'kubernetes-apiservers'
+    kubernetes_sd_configs:
+      - role: endpoints
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: default;kubernetes;https
+
+  # Kubernetes nodes
+  - job_name: 'kubernetes-nodes'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+
+  # Kubernetes nodes (Kubelet)
+  - job_name: 'kubernetes-nodes-kubelet'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics
+
+  # Kubernetes pods
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+
+  # kube-state-metrics
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
+
+  # cAdvisor (встроен в kubelet)
+  - job_name: 'kubernetes-cadvisor'
+    kubernetes_sd_configs:
+      - role: node
+    scheme: https
+    tls_config:
+      ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+```
+
+3. **Создай Kubernetes-specific алерты**:
+
+yaml
+
+```yaml
+# kubernetes_alerts.yml
+groups:
+  - name: kubernetes_cluster
+    rules:
+      # Нода недоступна
+      - alert: KubernetesNodeNotReady
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kubernetes node not ready"
+          description: "Node {{ $labels.node }} has been unready for more than 5 minutes"
+
+      # Высокое использование CPU на ноде
+      - alert: KubernetesNodeHighCPU
+        expr: |
+          (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance)) * 100 > 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU on node {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}%"
+
+      # Высокое использование памяти на ноде
+      - alert: KubernetesNodeHighMemory
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory on node {{ $labels.instance }}"
+          description: "Memory usage is {{ $value }}%"
+
+      # Pod в CrashLoopBackOff
+      - alert: KubernetesPodCrashLooping
+        expr: |
+          rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} crash looping"
+          description: "Pod is restarting frequently"
+
+      # Pod не может запуститься
+      - alert: KubernetesPodNotReady
+        expr: |
+          sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown"}) > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} not ready"
+          description: "Pod has been in {{ $labels.phase }} state for more than 10 minutes"
+
+      # Deployment replicas mismatch
+      - alert: KubernetesDeploymentReplicasMismatch
+        expr: |
+          kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} replicas mismatch"
+          description: "Desired: {{ $value }}, Available: {{ $labels.replicas_available }}"
+
+      # StatefulSet replicas mismatch
+      - alert: KubernetesStatefulSetReplicasMismatch
+        expr: |
+          kube_statefulset_status_replicas_ready != kube_statefulset_status_replicas
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "StatefulSet {{ $labels.namespace }}/{{ $labels.statefulset }} replicas mismatch"
+
+      # DaemonSet pods не на всех нодах
+      - alert: KubernetesDaemonSetRolloutStuck
+        expr: |
+          kube_daemonset_status_number_ready / kube_daemonset_status_desired_number_scheduled * 100 < 100
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "DaemonSet {{ $labels.namespace }}/{{ $labels.daemonset }} rollout stuck"
+
+      # Job failed
+      - alert: KubernetesJobFailed
+        expr: |
+          kube_job_status_failed > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Job {{ $labels.namespace }}/{{ $labels.job_name }} failed"
+
+      # PVC pending
+      - alert: KubernetesPersistentVolumeClaimPending
+        expr: |
+          kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PVC {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} pending"
+
+      # Container OOMKilled
+      - alert: KubernetesContainerOOMKilled
+        expr: |
+          (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1)
+          and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container OOMKilled in {{ $labels.namespace }}/{{ $labels.pod }}"
+          description: "Container {{ $labels.container }} was OOMKilled"
+
+  - name: kubernetes_resources
+    rules:
+      # Высокое использование CPU контейнером
+      - alert: KubernetesContainerHighCPU
+        expr: |
+          sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (namespace, pod, container)
+          / 
+          sum(kube_pod_container_resource_limits{resource="cpu"}) by (namespace, pod, container)
+          * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage in container"
+          description: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} using {{ $value }}% of limit"
+
+      # Высокое использование памяти контейнером
+      - alert: KubernetesContainerHighMemory
+        expr: |
+          sum(container_memory_working_set_bytes{container!=""}) by (namespace, pod, container)
+          /
+          sum(kube_pod_container_resource_limits{resource="memory"}) by (namespace, pod, container)
+          * 100 > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in container"
+          description: "Container {{ $labels.namespace }}/{{ $labels.pod }}/{{ $labels.container }} using {{ $value }}% of limit"
+
+      # Недостаточно ресурсов на ноде
+      - alert: KubernetesNodeResourcePressure
+        expr: |
+          kube_node_status_condition{condition=~"MemoryPressure|DiskPressure|PIDPressure",status="true"} == 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Node {{ $labels.node }} under {{ $labels.condition }}"
+```
+
+4. **Создай комплексный Kubernetes дашборд в Grafana**:
+
+Импортируй готовые дашборды:
+
+- **Kubernetes Cluster Monitoring**: ID 7249
+- **Kubernetes Pod Resources**: ID 6417
+- **Node Exporter Full**: ID 1860
+
+Или создай свой с панелями:
+
+**Panel 1: Cluster Overview**
+
+promql
+
+```promql
+# Всего нод
+count(kube_node_info)
+
+# Нод Ready
+sum(kube_node_status_condition{condition="Ready",status="true"})
+
+# Всего Pods
+count(kube_pod_info)
+
+# Running Pods
+count(kube_pod_status_phase{phase="Running"})
+```
+
+**Panel 2: Resource Usage**
+
+promql
+
+```promql
+# CPU Requests vs Allocatable
+sum(kube_pod_container_resource_requests{resource="cpu"}) 
+/ 
+sum(kube_node_status_allocatable{resource="cpu"}) * 100
+
+# Memory Requests vs Allocatable
+sum(kube_pod_container_resource_requests{resource="memory"}) 
+/ 
+sum(kube_node_status_allocatable{resource="memory"}) * 100
+```
+
+**Panel 3: Pod Status by Phase**
+
+promql
+
+```promql
+sum(kube_pod_status_phase{phase="Running"})
+sum(kube_pod_status_phase{phase="Pending"})
+sum(kube_pod_status_phase{phase="Failed"})
+```
+
+**Panel 4: Top Pods by CPU**
+
+promql
+
+```promql
+topk(10, 
+  sum(rate(container_cpu_usage_seconds_total{container!=""}[5m])) by (namespace, pod)
+)
+```
+
+**Panel 5: Top Pods by Memory**
+
+promql
+
+```promql
+topk(10,
+  sum(container_memory_working_set_bytes{container!=""}) by (namespace, pod)
+)
+```
+
+**Panel 6: Network Traffic**
+
+promql
+
+```promql
+# Inbound
+sum(rate(container_network_receive_bytes_total[5m])) by (namespace, pod)
+
+# Outbound
+sum(rate(container_network_transmit_bytes_total[5m])) by (namespace, pod)
+```
+
+5. **Тестирование мониторинга**:
+
+bash
+
+```bash
+# Создай тестовое приложение
+kubectl create deployment test-app --image=nginx --replicas=3
+
+# Посмотри метрики
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+
+# Открой Prometheus
+http://localhost:9090
+
+# Попробуй запросы:
+# - kube_deployment_status_replicas{deployment="test-app"}
+# - kube_pod_info{created_by_name="test-app"}
+# - sum(rate(container_cpu_usage_seconds_total{pod=~"test-app.*"}[5m]))
+
+# Симулируй проблему
+kubectl scale deployment test-app --replicas=10
+kubectl delete pod -l app=test-app --force --grace-period=0
+
+# Смотри алерты в Alertmanager
+http://localhost:9093
+```
+
+### 🚀 Бонус (новое)
+
+**1. Настрой AWS CloudWatch Exporter** для мониторинга AWS ресурсов:
+
+yaml
+
+```yaml
+  cloudwatch-exporter:
+    image: prom/cloudwatch-exporter:latest
+    container_name: cloudwatch-exporter
+    ports:
+      - "9106:9106"
+    volumes:
+      - ./cloudwatch-exporter.yml:/config/config.yml
+      - ~/.aws:/root/.aws:ro
+    command:
+      - '/bin/cloudwatch_exporter'
+      - '/config/config.yml'
+    restart: unless-stopped
+```
+
+`cloudwatch-exporter.yml`:
+
+yaml
+
+```yaml
+region: us-east-1
+metrics:
+  # EC2 Instances
+  - aws_namespace: AWS/EC2
+    aws_metric_name: CPUUtilization
+    aws_dimensions:
+      - InstanceId
+    aws_statistics:
+      - Average
+    period_seconds: 300
+    range_seconds: 600
+
+  - aws_namespace: AWS/EC2
+    aws_metric_name: NetworkIn
+    aws_dimensions:
+      - InstanceId
+    aws_statistics:
+      - Sum
+    period_seconds: 300
+
+  # RDS
+  - aws_namespace: AWS/RDS
+    aws_metric_name: DatabaseConnections
+    aws_dimensions:
+      - DBInstanceIdentifier
+    aws_statistics:
+      - Average
+    period_seconds: 300
+
+  - aws_namespace: AWS/RDS
+    aws_metric_name: ReadLatency
+    aws_dimensions:
+      - DBInstanceIdentifier
+    aws_statistics:
+      - Average
+    period_seconds: 300
+
+  # ELB
+  - aws_namespace: AWS/ELB
+    aws_metric_name: RequestCount
+    aws_dimensions:
+      - LoadBalancerName
+    aws_statistics:
+      - Sum
+    period_seconds: 300
+
+  - aws_namespace: AWS/ELB
+    aws_metric_name: Latency
+    aws_dimensions:
+      - LoadBalancerName
+    aws_statistics:
+      - Average
+    period_seconds: 300
+
+  # Lambda
+  - aws_namespace: AWS/Lambda
+    aws_metric_name: Invocations
+    aws_dimensions:
+      - FunctionName
+    aws_statistics:
+      - Sum
+    period_seconds: 300
+
+  - aws_namespace: AWS/Lambda
+    aws_metric_name: Duration
+    aws_dimensions:
+      - FunctionName
+    aws_statistics:
+      - Average
+    period_seconds: 300
+
+  - aws_namespace: AWS/Lambda
+    aws_metric_name: Errors
+    aws_dimensions:
+      - FunctionName
+    aws_statistics:
+      - Sum
+    period_seconds: 300
+
+  # S3
+  - aws_namespace: AWS/S3
+    aws_metric_name: NumberOfObjects
+    aws_dimensions:
+      - BucketName
+      - StorageType
+    aws_statistics:
+      - Average
+    period_seconds: 86400  # Once per day
+
+  # Billing
+  - aws_namespace: AWS/Billing
+    aws_metric_name: EstimatedCharges
+    aws_dimensions:
+      - Currency
+    aws_statistics:
+      - Maximum
+    period_seconds: 86400
+```
+
+Добавь в `prometheus.yml`:
+
+yaml
+
+```yaml
+scrape_configs:
+  - job_name: 'cloudwatch'
+    static_configs:
+      - targets: ['cloudwatch-exporter:9106']
+```
+
+**2. Мониторинг Network с SNMP Exporter**:
+
+yaml
+
+```yaml
+  snmp-exporter:
+    image: prom/snmp-exporter:latest
+    container_name: snmp-exporter
+    ports:
+      - "9116:9116"
+    volumes:
+      - ./snmp.yml:/etc/snmp_exporter/snmp.yml
+    command:
+      - '--config.file=/etc/snmp_exporter/snmp.yml'
+    restart: unless-stopped
+```
+
+`snmp.yml` (пример для Cisco):
+
+yaml
+
+```yaml
+auths:
+  public_v2:
+    community: public
+    security_level: noAuthNoPriv
+    auth_protocol: MD5
+    priv_protocol: DES
+    version: 2
+
+modules:
+  if_mib:
+    walk:
+      - 1.3.6.1.2.1.2.2.1.2   # ifDescr
+      - 1.3.6.1.2.1.2.2.1.10  # ifInOctets
+      - 1.3.6.1.2.1.2.2.1.16  # ifOutOctets
+      - 1.3.6.1.2.1.2.2.1.8   # ifOperStatus
+    
+    lookups:
+      - source_indexes: [ifIndex]
+        lookup: ifDescr
+    
+    overrides:
+      ifDescr:
+        type: DisplayString
+      ifOperStatus:
+        type: gauge
+```
+
+Prometheus config:
+
+yaml
+
+```yaml
+scrape_configs:
+  - job_name: 'snmp'
+    static_configs:
+      - targets:
+          - 192.168.1.1  # Switch IP
+          - 192.168.1.2  # Router IP
+    metrics_path: /snmp
+    params:
+      module: [if_mib]
+      auth: [public_v2]
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: snmp-exporter:9116
+```
+
+**3. Cost Monitoring Dashboard**:
+
+Создай панели в Grafana:
+
+promql
+
+```promql
+# AWS Estimated Charges (last value)
+aws_billing_estimated_charges_maximum{currency="USD"}
+
+# Daily cost trend
+increase(aws_billing_estimated_charges_maximum{currency="USD"}[1d])
+
+# Cost by service (requires detailed billing)
+sum by (service) (aws_cloudwatch_billing_estimated_charges_average)
+
+# Top 10 most expensive resources
+topk(10, 
+  sum by (resource_id) (aws_resource_cost_daily)
+)
+
+# Unutilized resources cost
+sum(aws_ec2_cpu_utilization_average < 10) * avg(aws_ec2_pricing_hourly)
+
+# Kubernetes cost by namespace
+sum by (namespace) (
+  avg_over_time(container_cpu_usage_seconds_total[1h]) * 
+  scalar(aws_ec2_pricing_hourly / 8)  # assuming 8 vCPUs per instance
+) * 24 * 30  # Monthly estimate
+```
+
+**4. Infrastructure as Code Monitoring**:
+
+Мониторинг Terraform state:
+
+python
+
+```python
+# terraform_exporter.py
+from prometheus_client import start_http_server, Gauge
+import json
+import subprocess
+import time
+
+# Метрики
+terraform_resource_count = Gauge('terraform_resource_count', 
+                                 'Number of resources in Terraform state',
+                                 ['workspace', 'type'])
+terraform_drift_detected = Gauge('terraform_drift_detected',
+                                'Drift detected in Terraform',
+                                ['workspace'])
+
+def check_terraform_state():
+    """Проверка Terraform state"""
+    try:
+        # Get resource count
+        result = subprocess.run(
+            ['terraform', 'state', 'list'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        
+        resources = result.stdout.strip().split('\n')
+        resource_types = {}
+        
+        for resource in resources:
+            if resource:
+                resource_type = resource.split('.')[0]
+                resource_types[resource_type] = resource_types.get(resource_type, 0) + 1
+        
+        workspace = subprocess.run(
+            ['terraform', 'workspace', 'show'],
+            capture_output=True,
+            text=True,
+            check=True
+        ).stdout.strip()
+        
+        # Update metrics
+        for rtype, count in resource_types.items():
+            terraform_resource_count.labels(
+                workspace=workspace,
+                type=rtype
+            ).set(count)
+        
+        # Check for drift
+        plan_result = subprocess.run(
+            ['terraform', 'plan', '-detailed-exitcode'],
+            capture_output=True
+        )
+        
+        # Exit code 2 means changes detected
+        if plan_result.returncode == 2:
+            terraform_drift_detected.labels(workspace=workspace).set(1)
+            print(f"⚠️  Drift detected in {workspace}")
+        else:
+            terraform_drift_detected.labels(workspace=workspace).set(0)
+            print(f"✓ No drift in {workspace}")
+            
+    except Exception as e:
+        print(f"Error checking Terraform: {e}")
+
+if __name__ == '__main__':
+    start_http_server(8000)
+    print("Terraform exporter started on :8000")
+    
+    while True:
+        check_terraform_state()
+        time.sleep(300)  # Check every 5 minutes
+```
+
+---
+
+**Чеклист модуля 10:**
+
+- ✅ Настроил kube-state-metrics
+- ✅ Создал Kubernetes алерты
+- ✅ Построил K8s дашборды
+- ✅  Интегрировал cloud monitoring (AWS/GCP/Azure)
+- ✅ Настроил network monitoring (SNMP)
+- ✅  Мониторинг стоимости инфраструктуры
+
+## Модуль 11: Мониторинг в продакшене - Best Practices (15 минут)
+
+### 🎯 Напоминалка
+
+**SRE принципы:**
+
+```
+SLI (Service Level Indicator)   - Метрика качества сервиса
+SLO (Service Level Objective)   - Целевое значение SLI
+SLA (Service Level Agreement)   - Договорное обязательство
+Error Budget                     - Допустимое количество ошибок
+```
+
+**Примеры SLI/SLO:**
+
+```
+SLI: Availability
+SLO: 99.9% uptime (43.2 min downtime/month)
+
+SLI: Latency
+SLO: 95% requests < 100ms
+
+SLI: Error Rate
+SLO: < 0.1% error rate
+
+SLI: Throughput
+SLO: Handle 10,000 req/s
+```
+
+**Error Budget:**
+
+```
+Uptime SLO: 99.9%
+Allowed downtime: 0.1% = 43.2 min/month
+
+If error budget > 0:
+  → Can take risks, deploy faster
+  
+If error budget = 0:
+  → Focus on reliability, slow deploys
+```
+
+**Monitoring Best Practices:**
+
+```
+✅ DO:
+- Monitor symptoms, not causes
+- Alert on SLO violations
+- Use runbooks for alerts
+- Test alerts regularly
+- Keep dashboards simple
+- Document everything
+- Use labels consistently
+- Set up test environments
+- Automate alert remediation where possible
+- Review alerts quarterly
+
+❌ DON'T:
+- Alert on everything
+- Set alert thresholds too tight
+- Ignore alert fatigue
+- Monitor without context
+- Create dashboards without purpose
+- Alert without actionable next steps
+```
+
+**Dashboard hierarchy:**
+
+```
+Level 1: Overview (C-level)
+- Overall system health
+- Key business metrics
+- High-level SLOs
+
+Level 2: Service (Team leads)
+- Per-service metrics
+- RED/USE metrics
+- Resource utilization
+
+Level 3: Detailed (Engineers)
+- Detailed metrics
+- Debug information
+- Deep-dive panels
+```
+
+**On-call best practices:**
+
+```
+1. Clear escalation paths
+2. Comprehensive runbooks
+3. Postmortems for incidents
+4. Fair rotation schedule
+5. Context in alerts
+6. Response time SLOs
+7. Blameless culture
+8. Regular drills
+```
+
+**Incident Response Process:**
+
+```
+1. Detection    - Alert fires
+2. Triage       - Assess severity
+3. Mitigation   - Stop the bleeding
+4. Investigation - Find root cause
+5. Resolution   - Fix permanently
+6. Postmortem   - Learn & improve
+```
+
+**Cost optimization:**
+
+```
+- Use recording rules for expensive queries
+- Set appropriate retention periods
+- Use downsampling for old data
+- Archive cold data
+- Monitor cardinality
+- Use relabeling to drop unnecessary metrics
+- Implement metric limits
+```
+
+### 💻 Задание
+
+Создай production-ready monitoring setup:
+
+1. **Определи SLIs/SLOs для сервиса**:
+
+**slo_config.yml**:
+
+yaml
+
+```yaml
+slos:
+  - name: api_availability
+    description: "API должен быть доступен 99.9% времени"
+    target: 0.999
+    window: 30d
+    sli:
+      error_ratio_query: |
+        sum(rate(http_requests_total{job="frontend",status=~"5.."}[5m]))
+        /
+        sum(rate(http_requests_total{job="frontend"}[5m]))
+
+  - name: api_latency
+    description: "95% запросов должны обрабатываться < 200ms"
+    target: 0.95
+    window: 30d
+    sli:
+      latency_query: |
+        histogram_quantile(0.95,
+          rate(http_request_duration_seconds_bucket{job="frontend"}[5m])
+        ) < 0.2
+
+  - name: error_rate
+    description: "Процент ошибок < 0.1%"
+    target: 0.999
+    window: 30d
+    sli:
+      error_ratio_query: |
+        (
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total[5m]))
+        ) < 0.001
+```
+
+2. **Создай SLO alerts** (добавь в `alerts.yml`):
+
+yaml
+
+```yaml
+groups:
+  - name: slo_alerts
+    rules:
+    # Error Budget Alert
+    - alert: ErrorBudgetBurn
+      expr: |
+        (
+          1 - (
+            sum(rate(http_requests_total{status=~"2.."}[1h]))
+            /
+            sum(rate(http_requests_total[1h]))
+          )
+        ) > 0.001
+      for: 5m
+      labels:
+        severity: critical
+        slo: availability
+      annotations:
+        summary: "Error budget burning too fast"
+        description: "Current error rate {{ $value | humanizePercentage }} exceeds budget"
+        runbook: "https://runbook.example.com/error-budget"
+
+    # Latency SLO violation
+    - alert: LatencySLOViolation
+      expr: |
+        histogram_quantile(0.95,
+          rate(http_request_duration_seconds_bucket[5m])
+        ) > 0.2
+      for: 10m
+      labels:
+        severity: warning
+        slo: latency
+      annotations:
+        summary: "Latency SLO violation"
+        description: "p95 latency is {{ $value }}s (SLO: 0.2s)"
+        impact: "Users experiencing slow responses"
+        action: "Check service performance and database queries"
+
+    # Multi-window burn rate
+    - alert: ErrorBudgetFastBurn
+      expr: |
+        (
+          (1 - avg_over_time(up[1h]) < 0.999)
+          and
+          (1 - avg_over_time(up[5m]) < 0.999)
+        )
+      labels:
+        severity: critical
+        burn_rate: fast
+      annotations:
+        summary: "Error budget burning at fast rate"
+        description: "Both short and long windows show SLO violations"
+```
+
+3. **Создай comprehensive dashboard** (`production-overview.json`):
+
+json
+
+```json
+{
+  "dashboard": {
+    "title": "Production Overview",
+    "tags": ["production", "slo"],
+    "rows": [
+      {
+        "title": "SLOs",
+        "panels": [
+          {
+            "title": "Availability (30d SLO: 99.9%)",
+            "targets": [{
+              "expr": "avg_over_time(up[30d]) * 100"
+            }],
+            "type": "stat",
+            "thresholds": [
+              {"value": 99.9, "color": "green"},
+              {"value": 99.5, "color": "yellow"},
+              {"value": 0, "color": "red"}
+            ]
+          },
+          {
+            "title": "Error Budget Remaining",
+            "targets": [{
+              "expr": "(0.999 - (1 - avg_over_time(up[30d]))) / 0.001 * 100"
+            }],
+            "type": "gauge"
+          }
+        ]
+      },
+      {
+        "title": "Golden Signals",
+        "panels": [
+          {
+            "title": "Request Rate",
+            "targets": [{
+              "expr": "sum(rate(http_requests_total[5m]))"
+            }]
+          },
+          {
+            "title": "Error Rate",
+            "targets": [{
+              "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100"
+            }]
+          },
+          {
+            "title": "Latency (p50, p95, p99)",
+            "targets": [
+              {"expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p50"},
+              {"expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p95"},
+              {"expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "p99"}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+4. **Создай runbook template** (`runbooks/high-error-rate.md`):
+
+markdown
+
+````markdown
+# Runbook: High Error Rate
+
+## Alert
+**Name:** HighErrorRate
+**Severity:** Critical
+**SLO Impact:** Availability
+
+## Symptoms
+- Error rate > 1% for more than 5 minutes
+- Users experiencing 5xx errors
+- Error budget burning
+
+## Impact
+- **Users:** Cannot complete requests
+- **Business:** Loss of revenue/trust
+- **SLO:** Burns error budget
+
+## Diagnosis
+
+### Step 1: Verify the alert
+```bash
+# Check current error rate
+curl -G http://prometheus:9090/api/v1/query \
+  --data-urlencode 'query=rate(http_requests_total{status=~"5.."}[5m])/rate(http_requests_total[5m])'
+```
+
+### Step 2: Identify affected services
+```bash
+# Check which services are returning errors
+# Grafana → Explore → Prometheus
+sum by (job) (rate(http_requests_total{status=~"5.."}[5m]))
+```
+
+### Step 3: Check logs
+```bash
+# Grafana → Explore → Loki
+{job="frontend"} |= "ERROR" | json
+```
+
+### Step 4: Check recent deployments
+```bash
+# Check if error rate increased after deployment
+kubectl get pods -o wide
+kubectl describe deployment frontend
+```
+
+### Step 5: Check dependencies
+```bash
+# Database
+psql -c "SELECT pg_is_in_recovery();"
+
+# Cache
+redis-cli ping
+
+# External APIs
+curl https://api.external.com/health
+```
+
+## Mitigation
+
+### Immediate (Stop the bleeding)
+1. **Rollback deployment** if recent:
+```bash
+kubectl rollout undo deployment/frontend
+```
+
+2. **Scale up** if resource constrained:
+```bash
+kubectl scale deployment/frontend --replicas=10
+```
+
+3. **Enable circuit breaker** for failing dependency:
+```bash
+# Update config to bypass failing service
+```
+
+4. **Put up maintenance page** if critical:
+```bash
+# Route traffic to maintenance page
+```
+
+### Short-term (Stabilize)
+1. Investigate root cause
+2. Apply proper fix
+3. Deploy with gradual rollout
+4. Monitor closely
+
+## Resolution
+- [ ] Error rate back to < 0.1%
+- [ ] Root cause identified
+- [ ] Fix deployed and verified
+- [ ] Monitoring confirms stability
+- [ ] Postmortem scheduled
+
+## Escalation
+- **L1:** On-call engineer (You)
+- **L2:** Team lead (after 15 min)
+- **L3:** Engineering manager (after 30 min)
+- **L4:** VP Engineering (critical)
+
+## References
+- Dashboard: http://grafana/d/prod-overview
+- Logs: http://grafana/explore?loki
+- Traces: http://jaeger:16686
+- Slack: #incidents
+
+## Related Runbooks
+- [Database Connection Issues](./db-connection.md)
+- [High Latency](./high-latency.md)
+- [Service Down](./service-down.md)
+````
+
+5. **Создай incident response script** (`scripts/incident_response.sh`):
+
+bash
+
+```bash
+#!/bin/bash
+
+# Incident Response Helper Script
+
+set -e
+
+ALERT_NAME=$1
+SEVERITY=$2
+
+if [ -z "$ALERT_NAME" ]; then
+  echo "Usage: ./incident_response.sh <alert_name> <severity>"
+  exit 1
+fi
+
+echo "🚨 Incident Response Started"
+echo "Alert: $ALERT_NAME"
+echo "Severity: $SEVERITY"
+echo "Time: $(date)"
+echo ""
+
+# 1. Gather context
+echo "📊 Gathering context..."
+echo ""
+
+echo "Current Metrics:"
+curl -s -G http://localhost:9090/api/v1/query \
+  --data-urlencode 'query=up' | jq '.data.result[] | {job: .metric.job, status: .value[1]}'
+
+echo ""
+echo "Recent Errors (last 5 min):"
+curl -s -G http://localhost:9090/api/v1/query \
+  --data-urlencode 'query=sum(rate(http_requests_total{status=~"5.."}[5m]))' | jq '.data.result[0].value[1]'
+
+echo ""
+echo "Active Alerts:"
+curl -s http://localhost:9090/api/v1/alerts | jq '.data.alerts[] | select(.state=="firing") | {alert: .labels.alertname, severity: .labels.severity}'
+
+# 2. Check recent changes
+echo ""
+echo "🔍 Recent changes..."
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}"
+
+# 3. Generate incident report
+INCIDENT_ID="INC-$(date +%Y%m%d-%H%M%S)"
+echo ""
+echo "📝 Creating incident report: $INCIDENT_ID"
+
+cat > "incidents/${INCIDENT_ID}.md" <<EOF
+# Incident Report: $INCIDENT_ID
+
+## Summary
+- **Alert:** $ALERT_NAME
+- **Severity:** $SEVERITY
+- **Start Time:** $(date)
+- **Status:** Investigating
+
+## Timeline
+- $(date +%H:%M:%S) - Alert fired
+- $(date +%H:%M:%S) - Investigation started
+
+## Impact
+- [ ] Users affected: TBD
+- [ ] Services affected: TBD
+- [ ] Revenue impact: TBD
+
+## Actions Taken
+- Gathered initial context
+- Reviewed metrics and logs
+
+## Next Steps
+1. Identify root cause
+2. Implement mitigation
+3. Verify resolution
+4. Schedule postmortem
+
+## Notes
+EOF
+
+echo "Incident report created: incidents/${INCIDENT_ID}.md"
+echo ""
+echo "✅ Context gathered. Next: Check runbook at runbooks/${ALERT_NAME}.md"
+```
+
+### 🚀 Бонус (новое)
+
+**Создай automated remediation** для частых проблем:
+
+**auto_remediation.py**:
+
+python
+
+```python
+import requests
+import time
+from datetime import datetime
+
+PROMETHEUS_URL = "http://localhost:9090"
+ALERTMANAGER_URL = "http://localhost:9093"
+
+def check_alerts():
+    """Check for active alerts"""
+    response = requests.get(f"{PROMETHEUS_URL}/api/v1/alerts")
+    alerts = response.json()['data']['alerts']
+    
+    firing_alerts = [a for a in alerts if a['state'] == 'firing']
+    return firing_alerts
+
+def auto_remediate(alert):
+    """Attempt automatic remediation"""
+    alert_name = alert['labels']['alertname']
+    
+    print(f"[{datetime.now()}] Attempting auto-remediation for: {alert_name}")
+    
+    if alert_name == "HighMemoryUsage":
+        # Clear caches
+        print("  → Clearing application caches")
+        requests.post("http://localhost:5000/admin/clear-cache")
+        
+    elif alert_name == "HighCPUUsage":
+        # Scale up service
+        print("  → Scaling up service")
+        # kubectl scale deployment --replicas=+2
+        
+    elif alert_name == "DiskSpaceLow":
+        # Clean old logs
+        print("  → Cleaning old logs")
+        import subprocess
+        subprocess.run(["find", "/var/log", "-name", "*.log.gz", "-mtime", "+7", "-delete"])
+    
+    else:
+        print(f"  ⚠️  No auto-remediation for {alert_name}")
+        return False
+    
+    print(f"  ✅ Auto-remediation completed")
+    return True
+
+def create_silence(alert, duration_hours=1):
+    """Create silence after remediation"""
+    silence = {
+        "matchers": [
+            {
+                "name": "alertname",
+                "value": alert['labels']['alertname'],
+                "isRegex": False
+            }
+        ],
+        "startsAt": datetime.utcnow().isoformat() + "Z",
+        "endsAt": datetime.utcnow().isoformat() + "Z",  # +duration
+        "createdBy": "auto-remediation",
+        "comment": f"Auto-remediated at {datetime.now()}"
+    }
+    
+    requests.post(f"{ALERTMANAGER_URL}/api/v2/silences", json=silence)
+
+if __name__ == '__main__':
+    print("🤖 Auto-remediation service started")
+    
+    while True:
+        alerts = check_alerts()
+        
+        for alert in alerts:
+            if auto_remediate(alert):
+                create_silence(alert, duration_hours=1)
+        
+        time.sleep(60)
+```
+
+
+### 🚀 Бонус: Chaos Engineering
+
+**Настрой chaos engineering для тестирования мониторинга**:
+
+**chaos_test.sh**:
+
+bash
+
+```bash
+#!/bin/bash
+
+echo "🔥 Starting Chaos Engineering Tests"
+echo "Testing monitoring system resilience..."
+echo ""
+
+# Test 1: Kill random container
+echo "Test 1: Container Failure"
+CONTAINER=$(docker ps --format "{{.Names}}" | grep -E "frontend|auth|business" | shuf -n 1)
+echo "  → Killing: $CONTAINER"
+docker kill $CONTAINER
+echo "  → Waiting 30 seconds..."
+sleep 30
+echo "  → Restoring container..."
+docker-compose up -d $CONTAINER
+echo "  ✅ Test 1 complete"
+echo ""
+
+# Test 2: Simulate high CPU
+echo "Test 2: High CPU Load"
+echo "  → Starting CPU stress on frontend..."
+docker exec frontend sh -c "for i in 1 2 3 4; do yes > /dev/null & done" 2>/dev/null
+echo "  → Stress running for 60 seconds..."
+sleep 60
+echo "  → Stopping stress..."
+docker exec frontend sh -c "pkill yes" 2>/dev/null
+echo "  ✅ Test 2 complete"
+echo ""
+
+# Test 3: Simulate network latency
+echo "Test 3: Network Latency"
+echo "  → Adding 200ms latency..."
+docker exec frontend sh -c "tc qdisc add dev eth0 root netem delay 200ms" 2>/dev/null || echo "  ⚠️  tc not available"
+sleep 60
+echo "  → Removing latency..."
+docker exec frontend sh -c "tc qdisc del dev eth0 root" 2>/dev/null
+echo "  ✅ Test 3 complete"
+echo ""
+
+# Test 4: Disk space pressure
+echo "Test 4: Disk Space Pressure"
+echo "  → Creating 1GB file..."
+docker exec frontend sh -c "dd if=/dev/zero of=/tmp/fillfile bs=1M count=1000" 2>/dev/null
+sleep 30
+echo "  → Removing file..."
+docker exec frontend sh -c "rm /tmp/fillfile" 2>/dev/null
+echo "  ✅ Test 4 complete"
+echo ""
+
+# Test 5: Memory pressure
+echo "Test 5: Memory Pressure"
+echo "  → Allocating 512MB..."
+docker exec frontend sh -c "stress --vm 1 --vm-bytes 512M --timeout 60s" 2>/dev/null || echo "  ⚠️  stress tool not available"
+echo "  ✅ Test 5 complete"
+echo ""
+
+# Test 6: Database connection failure
+echo "Test 6: Database Connection Failure"
+echo "  → Stopping PostgreSQL..."
+docker-compose stop postgres
+sleep 30
+echo "  → Restarting PostgreSQL..."
+docker-compose start postgres
+sleep 10
+echo "  ✅ Test 6 complete"
+echo ""
+
+# Test 7: Random 500 errors
+echo "Test 7: Random Application Errors"
+echo "  → Injecting errors for 60 seconds..."
+# Здесь можно добавить код для инъекции ошибок в приложение
+for i in {1..20}; do
+    curl -X POST http://localhost:5000/api/order 2>/dev/null
+    sleep 3
+done
+echo "  ✅ Test 7 complete"
+echo ""
+
+echo "🎉 All chaos tests completed!"
+echo ""
+echo "📊 Check your monitoring:"
+echo "  Prometheus Alerts: http://localhost:9090/alerts"
+echo "  Grafana Dashboards: http://localhost:3000"
+echo "  Alertmanager: http://localhost:9093"
+echo "  Jaeger Traces: http://localhost:16686"
+echo ""
+echo "Questions to verify:"
+echo "  ✓ Did alerts fire as expected?"
+echo "  ✓ Were all incidents visible in dashboards?"
+echo "  ✓ Did traces show the failures?"
+echo "  ✓ Were logs properly collected?"
+echo "  ✓ Did services recover automatically?"
+```
+
+**Запуск:**
+
+bash
+
+```bash
+chmod +x chaos_test.sh
+./chaos_test.sh
+```
+## Модуль 12: Финальный проект и карьера (30 минут)
+
+### 🎯 Финальный проект: E-Commerce Monitoring Stack
+
+Создай production-ready мониторинг для интернет-магазина.
+
+**Архитектура проекта:**
+
+```
+┌──────────────────── Frontend Layer ─────────────────────┐
+│  NGINX (Load Balancer) → Frontend Services (x3)         │
+└────────────────────────┬────────────────────────────────┘
+                         │
+┌──────────────────── API Layer ──────────────────────────┐
+│  API Gateway → Authentication → Rate Limiting            │
+└────────────────────────┬────────────────────────────────┘
+                         │
+┌──────────────────── Service Layer ──────────────────────┐
+│  Product Service │ Order Service │ Payment Service       │
+│  Inventory Svc   │ User Service  │ Notification Svc     │
+└────────────────────────┬────────────────────────────────┘
+                         │
+┌──────────────────── Data Layer ─────────────────────────┐
+│  PostgreSQL (Primary + Replica) │ Redis Cache │ S3       │
+└──────────────────────────────────────────────────────────┘
+
+┌──────────────────── Monitoring Layer ───────────────────┐
+│ Metrics: Prometheus + Grafana                            │
+│ Logs: Loki + Promtail                                    │
+│ Traces: Tempo + Jaeger                                   │
+│ Alerts: Alertmanager → PagerDuty/Slack                   │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 💻 Задание: Полная реализация
+
+**Шаг 1: Клонируй структуру проекта**
+
+bash
+
+```bash
+mkdir ecommerce-monitoring
+cd ecommerce-monitoring
+
+# Структура
+mkdir -p {services/{frontend,api-gateway,product,order,payment},monitoring/{prometheus,grafana,loki,alertmanager},scripts,docs}
+```
+
+**Шаг 2: Создай docker-compose-final.yml**
+
+yaml
+
+```yaml
+version: '3.8'
+
+networks:
+  frontend:
+  backend:
+  monitoring:
+
+services:
+  # === Load Balancer ===
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - frontend
+      - monitoring
+    depends_on:
+      - frontend
+
+  # === Application Services ===
+  frontend:
+    build: ./services/frontend
+    deploy:
+      replicas: 3
+    environment:
+      API_URL: http://api-gateway:8080
+      JAEGER_AGENT_HOST: jaeger
+    networks:
+      - frontend
+      - monitoring
+
+  api-gateway:
+    build: ./services/api-gateway
+    environment:
+      PRODUCT_SERVICE: http://product-service:8081
+      ORDER_SERVICE: http://order-service:8082
+      PAYMENT_SERVICE: http://payment-service:8083
+      REDIS_URL: redis://redis:6379
+    networks:
+      - frontend
+      - backend
+      - monitoring
+
+  product-service:
+    build: ./services/product
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/products
+      REDIS_URL: redis://redis:6379
+    networks:
+      - backend
+      - monitoring
+
+  order-service:
+    build: ./services/order
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/orders
+      PAYMENT_SERVICE: http://payment-service:8083
+    networks:
+      - backend
+      - monitoring
+
+  payment-service:
+    build: ./services/payment
+    environment:
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/payments
+    networks:
+      - backend
+      - monitoring
+
+  # === Data Layer ===
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ecommerce
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - backend
+      - monitoring
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - backend
+      - monitoring
+
+  # === Monitoring Stack ===
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    networks:
+      - monitoring
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki:/etc/loki
+      - loki-data:/loki
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./monitoring/promtail:/etc/promtail
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - monitoring
+
+  tempo:
+    image: grafana/tempo:latest
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+    volumes:
+      - ./monitoring/tempo:/etc/tempo
+      - tempo-data:/tmp/tempo
+    networks:
+      - monitoring
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      SPAN_STORAGE_TYPE: badger
+      BADGER_EPHEMERAL: "false"
+      BADGER_DIRECTORY_VALUE: /badger/data
+      BADGER_DIRECTORY_KEY: /badger/key
+    volumes:
+      - jaeger-data:/badger
+    networks:
+      - monitoring
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager:/etc/alertmanager
+    networks:
+      - monitoring
+
+volumes:
+  postgres-data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  tempo-data:
+  jaeger-data:
+```
+
+**Шаг 3: Определи SLIs и SLOs**
+
+**docs/slo-definitions.md**:
+
+markdown
+
+```markdown
+# Service Level Objectives (SLOs)
+
+## 1. Availability SLO
+**SLI:** Percentage of successful requests
+**SLO:** 99.9% (43.2 minutes downtime/month)
+**Measurement:** `sum(rate(http_requests{status=~"2.."}[30d])) / sum(rate(http_requests[30d]))`
+
+## 2. Latency SLO
+**SLI:** 95th percentile response time
+**SLO:** < 500ms for 95% of requests
+**Measurement:** `histogram_quantile(0.95, rate(http_duration_bucket[5m]))`
+
+## 3. Error Budget
+**Calculation:** (1 - SLO) × Total requests
+**30-day budget:** 0.1% × requests = allowed errors
+**Burn rate alerting:**
+- Fast burn: 2% budget in 1 hour → Page
+- Slow burn: 10% budget in 6 hours → Ticket
+
+## 4. Business SLOs
+
+### Order Processing
+- **SLO:** 99.5% orders processed successfully
+- **Target:** < 1 minute processing time
+
+### Payment Success
+- **SLO:** 99.9% payment success rate
+- **Target:** < 3 seconds payment confirmation
+
+### Search Response
+- **SLO:** 95% searches return results
+- **Target:** < 200ms search response time
+```
+
+**Шаг 4: Создай Production Dashboards**
+
+**monitoring/grafana/dashboards/01-executive-overview.json**:
+
+json
+
+```json
+{
+  "dashboard": {
+    "title": "Executive Overview",
+    "tags": ["business", "executive"],
+    "panels": [
+      {
+        "title": "System Health Score",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+        "targets": [{
+          "expr": "avg((up{job=~\".*service\"} == 1) * 100)"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 95, "color": "yellow"},
+                {"value": 99, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Orders per Hour",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [{
+          "expr": "sum(increase(orders_total[1h]))"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 100, "color": "yellow"},
+                {"value": 500, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Revenue Today",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [{
+          "expr": "sum(increase(payment_amount_total[24h]))"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        }
+      },
+      {
+        "title": "Active Users",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [{
+          "expr": "sum(rate(http_requests_total{endpoint=\"/\"}[5m])) * 60",
+          "legendFormat": "Active Users"
+        }]
+      }
+    ]
+  }
+}
+```
+
+**Шаг 5: Comprehensive Alerts**
+
+**monitoring/prometheus/alerts/production.yml**:
+
+yaml
+
+```yaml
+groups:
+  - name: critical_slo_violations
+    interval: 30s
+    rules:
+    # Multi-window burn rate (Google SRE)
+    - alert: ErrorBudgetCriticalBurn
+      expr: |
+        (
+          sum(rate(http_requests{status=~"5.."}[1h]))
+          / sum(rate(http_requests[1h]))
+        ) > (14.4 * 0.001)  # 2% of monthly budget in 1 hour
+        and
+        (
+          sum(rate(http_requests{status=~"5.."}[5m]))
+          / sum(rate(http_requests[5m]))
+        ) > (14.4 * 0.001)
+      labels:
+        severity: page
+        team: sre
+      annotations:
+        summary: "🚨 Critical error budget burn"
+        description: "Burning 2% of 30-day error budget per hour"
+        runbook: "https://runbook.company.com/error-budget-burn"
+        action: "Page on-call engineer immediately"
+
+    - alert: ServiceDown
+      expr: up{job=~".*-service"} == 0
+      for: 1m
+      labels:
+        severity: page
+        team: platform
+      annotations:
+        summary: "🔴 Service {{ $labels.job }} is DOWN"
+        description: "{{ $labels.instance }} unreachable for 1+ minutes"
+        impact: "Service unavailable to users"
+
+  - name: slo_approaching_violations
+    interval: 1m
+    rules:
+    - alert: LatencySLOAtRisk
+      expr: |
+        histogram_quantile(0.95,
+          sum(rate(http_duration_bucket[30m])) by (le)
+        ) > 0.45  # 90% of 500ms threshold
+      for: 15m
+      labels:
+        severity: warning
+        team: backend
+      annotations:
+        summary: "⚠️ Latency approaching SLO limit"
+        description: "p95 latency: {{ $value }}s (SLO: 0.5s)"
+
+  - name: business_kpis
+    interval: 5m
+    rules:
+    - alert: OrderRateDropCritical
+      expr: |
+        (
+          sum(rate(orders_total[10m]))
+          /
+          sum(rate(orders_total[10m] offset 1h))
+        ) < 0.5
+      for: 10m
+      labels:
+        severity: page
+        team: business
+      annotations:
+        summary: "📉 Order rate dropped 50%+"
+        description: "Current: {{ $value | humanizePercentage }} of normal"
+        impact: "Severe revenue impact"
+
+    - alert: PaymentFailureSpike
+      expr: |
+        sum(rate(payments_total{status="failed"}[5m]))
+        / sum(rate(payments_total[5m]))
+        > 0.05
+      for: 5m
+      labels:
+        severity: page
+        team: payments
+      annotations:
+        summary: "💳 Payment failure rate > 5%"
+        description: "{{ $value | humanizePercentage }} payments failing"
+
+  - name: infrastructure
+    interval: 1m
+    rules:
+    - alert: HighMemoryPressure
+      expr: |
+        (
+          1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)
+        ) > 0.90
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Memory usage > 90%"
+
+    - alert: DiskFillPrediction
+      expr: |
+        predict_linear(node_filesystem_avail_bytes[1h], 4*3600) < 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Disk will fill in ~4 hours"
+        action: "Clean logs or expand disk"
+
+    - alert: DatabaseConnectionPoolExhausted
+      expr: |
+        pg_stat_database_numbackends
+        / pg_settings_max_connections
+        > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "DB connection pool 80%+ utilized"
+```
+
+**Шаг 6: Runbooks**
+
+**docs/runbooks/high-error-rate.md**:
+
+markdown
+
+````markdown
+# Runbook: High Error Rate
+
+## Alert Details
+- **Alert:** HighErrorRate  
+- **Severity:** Critical (Page)
+- **SLO Impact:** Availability
+
+## Symptoms
+- Error rate > 1% for 5+ minutes
+- Users seeing 5xx errors
+- Error budget burning fast
+
+## Initial Response (First 5 minutes)
+
+### 1. Acknowledge alert
+```bash
+# Silence alert while investigating
+amtool silence add alertname=HighErrorRate --duration=30m --author=oncall --comment="Investigating"
+```
+
+### 2. Check overall system health
+- Grafana: http://grafana.company.com/d/overview
+- Look for: spike in errors, latency, resource usage
+
+### 3. Identify affected service(s)
+```promql
+# Which service has errors?
+topk(5, sum by (service) (rate(http_requests{status=~"5.."}[5m])))
+```
+
+### 4. Check recent changes
+```bash
+# Recent deployments
+kubectl get events --sort-by='.lastTimestamp' | head -20
+
+# Recent config changes
+git log --since="1 hour ago" --oneline
+```
+
+## Diagnosis
+
+### Check application logs
+```logql
+# Loki query
+{service="api"} |= "ERROR" | json | line_format "{{.level}}: {{.message}}"
+```
+
+### Check traces
+- Jaeger: http://jaeger.company.com
+- Search for failing requests
+- Look for slow/failing spans
+
+### Check dependencies
+```bash
+# Database
+pg_isready -h postgres-primary
+SELECT count(*) FROM pg_stat_activity WHERE state = 'active';
+
+# Redis
+redis-cli -h redis ping
+
+# External APIs
+curl -I https://payment-gateway.external.com/health
+```
+
+## Common Causes & Solutions
+
+### 1. Bad Deployment
+**Symptoms:** Errors started after recent deploy
+
+**Solution:**
+```bash
+# Immediate rollback
+kubectl rollout undo deployment/api-service
+
+# Verify
+kubectl rollout status deployment/api-service
+```
+
+### 2. Database Issues
+**Symptoms:** Slow queries, timeouts
+
+**Solution:**
+```sql
+-- Check long-running queries
+SELECT pid, age(clock_timestamp(), query_start), query
+FROM pg_stat_activity
+WHERE state = 'active' AND query_start < now() - interval '1 minute'
+ORDER BY query_start;
+
+-- Kill if needed
+SELECT pg_terminate_backend(pid);
+```
+
+### 3. Resource Exhaustion
+**Symptoms:** High CPU/memory, OOMKills
+
+**Solution:**
+```bash
+# Scale up immediately
+kubectl scale deployment/api-service --replicas=10
+
+# Check resource usage
+kubectl top pods
+```
+
+### 4. External API Failure
+**Symptoms:** Timeout errors, circuit breaker open
+
+**Solution:**
+```bash
+# Enable fallback/cache
+kubectl set env deployment/api-service USE_CACHE=true
+
+# Bypass failing dependency if non-critical
+kubectl set env deployment/api-service FEATURE_X_ENABLED=false
+```
+
+## Mitigation Strategy
+
+### Immediate (Stop the bleeding)
+1. Rollback bad deployment
+2. Scale up if resource constrained
+3. Enable circuit breakers
+4. Route to healthy instances
+
+### Short-term (Stabilize)
+1. Apply proper fix
+2. Gradual rollout with monitoring
+3. Load test before full deployment
+
+### Long-term (Prevent)
+1. Add pre-deployment tests
+2. Improve monitoring/alerting
+3. Implement gradual rollouts
+4. Add chaos testing
+
+## Verification
+
+- [ ] Error rate < 0.1%
+- [ ] Latency back to normal
+- [ ] No active alerts
+- [ ] Users not reporting issues
+
+## Communication
+
+### During incident
+````
+
+Slack: #incidents "Investigating high error rate on API service. ETA for resolution: 15 minutes. Status page: [https://status.company.com](https://status.company.com)"
+
+```
+
+### After resolution
+```
+
+"Issue resolved. Root cause: [X]. Total impact: [Y] minutes. Postmortem scheduled for [date]."
+
+```
+
+## Escalation Path
+1. **L1** (0-5 min): On-call engineer
+2. **L2** (5-15 min): Team lead
+3. **L3** (15-30 min): Engineering manager
+4. **L4** (30+ min): VP Engineering + CTO
+
+## Postmortem
+Schedule within 24 hours. Template: docs/postmortem-template.md
+
+## Related Runbooks
+- [Service Down](./service-down.md)
+- [High Latency](./high-latency.md)
+- [Database Issues](./database-issues.md)
+```
+
+### 🎯 Критерии успешной сдачи проекта
+
+**Must Have (обязательно):**
+
+- [ ]  Все сервисы запускаются одной командой
+- [ ]  Prometheus собирает метрики со всех компонентов
+- [ ]  3+ dashboard в Grafana (Business, Technical, Infrastructure)
+- [ ]  Loki собирает логи в JSON формате
+- [ ]  Distributed tracing работает через Jaeger/Tempo
+- [ ]  10+ production alerts настроены
+- [ ]  3+ SLO определены и измеряются
+- [ ]  Runbooks для критических alerts
+- [ ]  Load testing показывает стабильность
+- [ ]  Documentation (README, architecture, SLOs)
+
+**Nice to Have (дополнительно):**
+
+- [ ]  Multi-environment (dev/staging/prod)
+- [ ]  Automated remediation
+- [ ]  Chaos engineering suite
+- [ ]  Cost analysis dashboard
+- [ ]  Security monitoring
+- [ ]  Capacity planning dashboard
+- [ ]  Custom exporters
+- [ ]  Integration tests
+- [ ]  Performance benchmarks
+- [ ]  Postmortem examples
+
+---
+
+## 📚 Карьерный путь DevOps/SRE
+
+### Junior DevOps/Monitoring Engineer (0-2 года)
+
+**Навыки:**
+
+- Linux basics
+- Docker basics
+- Basic monitoring (Prometheus, Grafana)
+- Log aggregation basics
+- Alert configuration
+- Dashboard creation
+
+**Зарплата:** $40k-70k
+
+### Middle DevOps/SRE (2-4 года)
+
+**Навыки:**
+
+- Advanced Prometheus (recording rules, federation)
+- Distributed tracing
+- SLI/SLO management
+- Incident response
+- CI/CD integration
+- Infrastructure as Code
+
+**Зарплата:** $70k-120k
+
+### Senior SRE (4-7 лет)
+
+**Навыки:**
+
+- System design для observability
+- Multi-cloud monitoring
+- Capacity planning
+- Cost optimization
+- Team leadership
+- On-call strategy
+
+**Зарплата:** $120k-180k
+
+### Staff/Principal SRE (7+ лет)
+
+**Навыки:**
+
+- Organization-wide observability strategy
+- Tooling development
+- SLO framework design
+- Incident management process
+- Technical leadership
+
+**Зарплата:** $180k-300k+
+
+### Популярные вопросы на собеседованиях
+
+**Технические:**
+
+1. **Explain the difference between monitoring and observability**
+2. **How would you monitor a microservices architecture?**
+3. **What is high cardinality and why is it a problem?**
+4. **Design an alerting strategy that avoids alert fatigue**
+5. **How do you calculate error budget for 99.9% SLO?**
+6. **Explain push vs pull monitoring models**
+7. **How would you debug a memory leak in production?**
+8. **What metrics would you track for a database?**
+
+**Ситуационные:**
+
+1. **Production is down, walk me through your process**
+2. **You're getting 100 alerts per minute, what do you do?**
+3. **Disk is 99% full but you can't find large files**
+4. **Latency increased 10x after deployment, how to investigate?**
+5. **Your monitoring system is down, how do you monitor?**
+
+**System Design:**
+
+1. **Design monitoring for a global CDN**
+2. **Design alerting for 10,000 microservices**
+3. **How would you monitor a mobile app backend?**
+
+---
+
+## 🏆 Финальный экзамен
+
+### Часть 1: Теория (30 баллов)
+
+**Вопрос 1 (10 баллов):** Объясни концепцию Error Budget и как его использовать для балансировки скорости разработки и надежности.
+
+**Вопрос 2 (10 баллов):** Сравни USE и RED методологии. Когда использовать каждую?
+
+**Вопрос 3 (10 баллов):** Что такое "high cardinality" в контексте метрик? Почему это проблема и как её решить?
+
+### Часть 2: Практика (70 баллов)
+
+**Задание 1: Incident Response (25 баллов)**
+
+```
+Сценарий:
+- 02:00 AM: PagerDuty alert "API Error Rate High"
+- Current error rate: 15% (normal: 0.1%)
+- Last deployment: 4 hours ago
+- Affected: Payment service
+
+Задачи:
+1. Напиши последовательность действий (first 10 minutes)
+2. Какие метрики/логи/traces проверишь?
+3. 3 наиболее вероятные причины
+4. Mitigation strategy для каждой
+5. Communication plan
+```
+
+**Задание 2: Monitoring Design (25 баллов)**
+
+```
+Спроектируй мониторинг для:
+- Video streaming platform
+- 10M users
+- 1M concurrent streams
+- Multi-region deployment
+
+Определи:
+1. Key metrics (минимум 15)
+2. SLIs и SLOs (минимум 5)
+3. Critical alerts (минимум 8)
+4. Dashboard structure
+5. Cost estimation
+```
+
+**Задание 3: PromQL Challenge (20 баллов)**
+
+Напиши запросы для:
+
+```
+1. CPU usage per pod (excluding idle)
+2. p99 latency for last 24 hours
+3. Error rate by endpoint (last 5 min)
+4. Predict when disk will be full
+5. Cache hit ratio trending down
+6. Requests per second by service
+7. Top 5 slowest endpoints
+8. Database connection pool utilization
+9. Apdex score (T=300ms)
+10. Memory usage forecast (next
+```
