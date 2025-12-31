@@ -2272,7 +2272,7 @@ Proxy 2: proxy-office-1 (standby)
 Настрой распределенный мониторинг с Proxy:
 
 1. **Разверни Zabbix Proxy через Docker**
-   ```bash
+```bash
    # Создай docker-compose.yml
    cat > docker-compose-proxy.yml <<'EOF'
    version: '3.8'
@@ -2309,7 +2309,7 @@ Proxy 2: proxy-office-1 (standby)
 
    # Проверка
    docker-compose -f docker-compose-proxy.yml logs -f zabbix-proxy
-   ```
+```
 
 2. **Зарегистрируй Proxy на Server**
    ```
@@ -2346,7 +2346,7 @@ Proxy 2: proxy-office-1 (standby)
    ```
 
 4. **Проверь работу Proxy**
-   ```
+```
    # В веб-интерфейсе
    Administration → Proxies
    # Проверь Last seen и Version
