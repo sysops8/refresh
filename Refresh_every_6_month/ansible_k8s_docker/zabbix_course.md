@@ -4700,7 +4700,7 @@ SHOW PROCESSLIST;
 
 4. **Оптимизируй Server конфигурацию**
    
-   ```bash
+```bash
    # Отредактируй docker-compose.yml
    cat >> docker-compose.yml <<EOF
    
