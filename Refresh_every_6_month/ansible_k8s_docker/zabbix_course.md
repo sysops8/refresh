@@ -442,7 +442,7 @@ avg(//system.cpu.util,5m)
    
    # Тест
    zabbix_agent2 -t custom.service.status[nginx]
-   ```
+```
 
 2. **Добавь item в Zabbix**
    - Configuration → Hosts → TestServer → Items → Create item
@@ -512,7 +512,7 @@ avg(//system.cpu.util,5m)
    
    chmod +x /usr/local/bin/disk_discovery.sh
    systemctl restart zabbix-agent2
-   ```
+```
 
 2. **В Zabbix создай Discovery Rule**
    - Configuration → Hosts → TestServer → Discovery rules
@@ -718,7 +718,7 @@ Tags:
    ```
 
 4. **Триггер с nodata**
-   ```
+```
    Name: No data from agent
    Severity: Average
    
@@ -728,7 +728,7 @@ Tags:
    Description:
    Agent not responding for 5 minutes
    Last seen: {ITEM.LASTCLOCK}
-   ```
+```
 
 5. **Настрой Trigger dependencies**
    ```
@@ -2816,8 +2816,7 @@ Item configuration:
    chown zabbix:zabbix /usr/lib/zabbix/externalscripts/check_and_restart.sh
 ```
 
-   ### В веб-интерфейсе
-```
+   # В веб-интерфейсе
    Administration → Scripts → Create script
    
    Name: Check and restart service
@@ -2828,8 +2827,7 @@ Item configuration:
    
    Host group: Linux servers
    User group: Administrators
-   Enable confirmation: Yes
-```
+   Enable confirmation: Yes   
 
 3. **Используй Zabbix API для автоматизации**
    ```python
@@ -3040,9 +3038,9 @@ Item configuration:
      }
      
      return 'OK';
-    ```
+```
 
-
+---
 
 ## Модуль 9: Автоматизация и API (30 минут)
 
@@ -4598,6 +4596,7 @@ Triggers:
   Храни в меньшей точности если возможно
 ```
 
+
 **7. Proxy эффективное использование:**
 
 ```yaml
@@ -4619,7 +4618,788 @@ Triggers:
   - Более надежный мониторинг
 ```
 
-**8.
+**8. Troubleshooting производительности:**
 
+```bash
+# Проверка очереди
+zabbix_server -R config_cache_reload  # Перезагрузка кэша
+
+# Проверка логов на проблемы
+grep "slow query" /var/log/zabbix/zabbix_server.log
+grep "poller #" /var/log/zabbix/zabbix_server.log | grep "spent"
+
+# Проверка процессов
+ps aux | grep zabbix_server | wc -l
+
+# Top queries в MySQL
+SELECT * FROM sys.statement_analysis LIMIT 10;
+
+# Проверка подключений к БД
+SHOW PROCESSLIST;
+```
+
+### 💻 Задание
+
+Оптимизируй производительность Zabbix:
+
+1. **Проанализируй текущую производительность**
+   
+   ```bash
+   # Проверь размер БД
+   docker exec -it <mysql-container> mysql -uzabbix -pzabbix_pwd -e "
+   SELECT 
+     table_name,
+     ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'Size_MB'
+   FROM information_schema.TABLES
+   WHERE table_schema = 'zabbix'
+   ORDER BY (data_length + index_length) DESC
+   LIMIT 10;"
+   
+   # Проверь queue в Web UI
+   # Reports → Status of Zabbix → Queue
+   
+   # Проверь процессы
+   # Reports → Status of Zabbix → Process busy (%)
+   ```
+
+2. **Настрой оптимальные интервалы для items**
+   
+   - Configuration → Hosts → TestServer → Items
+   - Для некритичных метрик измени Update interval:
+     - Disk free space: 5m → 10m
+     - System uptime: 30s → 10m
+     - Network interfaces discovery: 1h
+   
+   ```yaml
+   # Правило:
+   Critical metrics (CPU, Memory): 1m
+   Standard metrics (Disk, Processes): 5m
+   Non-critical (Uptime, Version): 10m-1h
+   Discovery rules: 1h-24h
+   ```
+
+3. **Настрой Housekeeping**
+   
+   - Administration → General → Housekeeping
+   
+   ```yaml
+   Enable internal housekeeping: Yes
+   
+   Override item history period: Yes
+   Override item trend period: Yes
+   
+   Data storage period:
+     Events and alerts: 30d
+     Services: 90d
+     Audit: 90d
+     User sessions: 30d
+     History: 30d
+     Trends: 365d
+   ```
+
+4. **Оптимизируй Server конфигурацию**
+   
+   ```bash
+   # Отредактируй docker-compose.yml
+   cat >> docker-compose.yml <<EOF
+   
+   services:
+     zabbix-server:
+       environment:
+         # Добавь оптимизации
+         ZBX_CACHESIZE: "256M"
+         ZBX_HISTORYCACHESIZE: "128M"
+         ZBX_TRENDCACHESIZE: "32M"
+         ZBX_VALUECACHESIZE: "256M"
+         ZBX_STARTPOLLERS: "20"
+         ZBX_STARTTRAPPERS: "10"
+         ZBX_STARTPINGERS: "5"
+         ZBX_STARTHTTPPOLLERS: "5"
+   EOF
+   
+   # Перезапусти
+   docker-compose up -d zabbix-server
+```
+
+5. **Создай dashboard для мониторинга производительности**
+   
+   - Monitoring → Dashboards → Create dashboard
+   - Name: Zabbix Performance
+   
+   Добавь виджеты:
+   - Widget 1: Graph - Items in queue
+   - Widget 2: Graph - Poller busy %
+   - Widget 3: Plain text - Cache utilization
+   - Widget 4: Graph - Database write speed
+
+6. **Проверь результаты оптимизации**
+   
+   ```bash
+   # Сравни до и после
+   # Reports → Status of Zabbix
+   
+   # Проверь логи
+   docker logs zabbix-server | grep "required performance"
+   
+   # Queue должна быть близка к 0
+   # Poller busy должен быть < 75%
+   # Cache utilization < 80%
+   ```
+
+### 🚀 Бонус (новое)
+
+**Настрой TimescaleDB для long-term storage:**
+
+TimescaleDB - расширение PostgreSQL для эффективного хранения временных рядов:
+
+```bash
+# Docker Compose с TimescaleDB
+cat > docker-compose-timescale.yml <<EOF
+version: '3.8'
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    environment:
+      POSTGRES_DB: zabbix
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: zabbix_pwd
+    volumes:
+      - timescale-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: postgres -c max_connections=200 -c shared_buffers=2GB
+
+volumes:
+  timescale-data:
+EOF
+
+# После создания БД, создай hypertables:
+docker exec -it timescaledb psql -U zabbix -d zabbix -c "
+  SELECT create_hypertable('history', 'clock', chunk_time_interval => 86400);
+  SELECT create_hypertable('history_uint', 'clock', chunk_time_interval => 86400);
+  SELECT create_hypertable('history_str', 'clock', chunk_time_interval => 86400);
+  SELECT create_hypertable('history_text', 'clock', chunk_time_interval => 86400);
+  SELECT create_hypertable('history_log', 'clock', chunk_time_interval => 86400);
+  SELECT create_hypertable('trends', 'clock', chunk_time_interval => 2592000);
+  SELECT create_hypertable('trends_uint', 'clock', chunk_time_interval => 2592000);
+"
+
+# Настрой автоматическое сжатие
+docker exec -it timescaledb psql -U zabbix -d zabbix -c "
+  ALTER TABLE history SET (
+    timescaledb.compress,
+    timescaledb.compress_segmentby = 'itemid'
+  );
+  
+  SELECT add_compression_policy('history', INTERVAL '7 days');
+"
+```
+
+**Настрой Elasticsearch для логов и событий:**
+
+```yaml
+version: '3.8'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=false
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+volumes:
+  es-data:
+```
+
+Используй Zabbix module для отправки событий в Elasticsearch для долгосрочного хранения и анализа.
+
+**Настрой Redis для кэширования:**
+
+```yaml
+version: '3.8'
+services:
+  redis:
+    image: redis:alpine
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
+```
+
+Используй Redis для кэширования результатов API запросов и dashboard данных.
 
 ---
+
+## Финальный проект (60 минут)
+
+### Задача: Развернуть полнофункциональную систему мониторинга
+
+Создай production-ready Zabbix окружение с полным стеком возможностей.
+
+**Архитектура:**
+- Zabbix Server с высокой доступностью
+- Zabbix Proxy для удаленных локаций
+- Интеграция с внешними системами (Grafana, Telegram)
+- Мониторинг разнородной инфраструктуры
+- Автоматизация через API
+- Оптимизированная конфигурация
+
+**Требования:**
+
+1. **Инфраструктура (Docker Compose)**
+   ```yaml
+   Services:
+     - Zabbix Server (оптимизированный)
+     - PostgreSQL с партиционированием
+     - Zabbix Web (Nginx)
+     - Zabbix Proxy (для удаленной локации)
+     - Grafana с Zabbix plugin
+     - Portainer для управления
+   ```
+
+2. **Мониторинг**
+   - 3+ Linux хоста
+   - 1+ Windows хост (опционально)
+   - Docker containers
+   - Network устройства (SNMP)
+   - Web applications (HTTP checks)
+   - Database (MySQL/PostgreSQL)
+
+3. **Templates**
+   - Кастомные templates для приложений
+   - Templates с LLD
+   - Calculated items
+   - Dependent items
+
+4. **Alerting**
+   - Telegram уведомления
+   - Email alerts
+   - Эскалация по severity
+   - Maintenance windows
+   - Problem acknowledgment workflow
+
+5. **Dashboards**
+   - Executive dashboard (high-level overview)
+   - Technical dashboard (детальные метрики)
+   - Grafana dashboard (визуализация)
+   - Problem dashboard
+
+6. **Automation**
+   - Ansible playbook для настройки хостов
+   - Python скрипты для массовых операций
+   - API интеграция для CI/CD
+   - Автоматическое создание maintenance
+
+7. **Интеграции**
+   - Grafana
+   - Telegram bot
+   - External scripts
+   - ITSM webhook (опционально)
+
+8. **Оптимизация**
+   - Database partitioning
+   - Housekeeping
+   - Cache tuning
+   - Performance monitoring
+
+9. **Безопасность**
+   - SSL/TLS для web
+   - PSK для Proxy
+   - RBAC для пользователей
+   - Network isolation
+
+10. **Documentation**
+    - README с инструкциями
+    - Architecture diagram
+    - Runbook для типичных проблем
+    - Backup/Restore процедура
+
+**Структура проекта:**
+```
+zabbix-production/
+├── docker/
+│   ├── docker-compose.yml
+│   ├── docker-compose-proxy.yml
+│   └── .env
+├── configs/
+│   ├── zabbix_server.conf
+│   ├── zabbix_proxy.conf
+│   └── nginx.conf
+├── templates/
+│   ├── template_app_custom.yaml
+│   ├── template_docker.yaml
+│   └── template_mysql.yaml
+├── scripts/
+│   ├── ansible/
+│   │   ├── playbook.yml
+│   │   └── inventory.ini
+│   ├── python/
+│   │   ├── bulk_operations.py
+│   │   ├── maintenance_api.py
+│   │   └── monitoring_report.py
+│   └── bash/
+│       ├── deploy.sh
+│       ├── backup.sh
+│       └── restore.sh
+├── dashboards/
+│   ├── executive.json
+│   ├── technical.json
+│   └── grafana_dashboard.json
+├── monitoring/
+│   ├── hosts.csv
+│   └── userparameters/
+│       ├── custom_app.conf
+│       └── docker_monitoring.conf
+├── docs/
+│   ├── README.md
+│   ├── ARCHITECTURE.md
+│   ├── RUNBOOK.md
+│   └── BACKUP.md
+└── tests/
+    ├── test_api.py
+    └── test_integration.py
+```
+
+**Начни с базового docker-compose.yml:**
+
+```yaml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - zabbix-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zabbix"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  zabbix-server:
+    image: zabbix/zabbix-server-pgsql:alpine-6.4-latest
+    environment:
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+      ZBX_CACHESIZE: 256M
+      ZBX_HISTORYCACHESIZE: 128M
+      ZBX_TRENDCACHESIZE: 32M
+      ZBX_VALUECACHESIZE: 256M
+      ZBX_STARTPOLLERS: 20
+      ZBX_STARTTRAPPERS: 10
+      ZBX_STARTPINGERS: 5
+      ZBX_STARTHTTPPOLLERS: 5
+      ZBX_LOGSLOWQUERIES: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "10051:10051"
+    volumes:
+      - zabbix-server-data:/var/lib/zabbix
+      - ./configs/zabbix_server.conf:/etc/zabbix/zabbix_server.conf:ro
+    networks:
+      - zabbix-net
+    restart: unless-stopped
+
+  zabbix-web:
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-6.4-latest
+    environment:
+      DB_SERVER_HOST: postgres
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: zabbix
+      ZBX_SERVER_HOST: zabbix-server
+      PHP_TZ: ${TIMEZONE}
+      ZBX_SERVER_NAME: Production Zabbix
+    depends_on:
+      - postgres
+      - zabbix-server
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./configs/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - zabbix-net
+    restart: unless-stopped
+
+  zabbix-agent:
+    image: zabbix/zabbix-agent2:alpine-6.4-latest
+    environment:
+      ZBX_HOSTNAME: "Zabbix server"
+      ZBX_SERVER_HOST: zabbix-server
+    privileged: true
+    pid: "host"
+    networks:
+      - zabbix-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_INSTALL_PLUGINS: alexanderzobnin-zabbix-app
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - zabbix-net
+    restart: unless-stopped
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    networks:
+      - zabbix-net
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  zabbix-server-data:
+  grafana-data:
+  portainer-data:
+
+networks:
+  zabbix-net:
+    driver: bridge
+```
+
+**Создай .env файл:**
+```bash
+DB_PASSWORD=SecurePassword123!
+GRAFANA_PASSWORD=admin123
+TIMEZONE=Asia/Almaty
+```
+
+**Deploy скрипт:**
+```bash
+#!/bin/bash
+# scripts/deploy.sh
+
+set -e
+
+echo "🚀 Deploying Zabbix Production Environment"
+
+# Проверка требований
+command -v docker >/dev/null 2>&1 || { echo "Docker required"; exit 1; }
+command -v docker-compose >/dev/null 2>&1 || { echo "Docker Compose required"; exit 1; }
+
+# Создание директорий
+mkdir -p configs templates scripts/{ansible,python,bash} dashboards monitoring/userparameters docs
+
+# Запуск services
+echo "📦 Starting services..."
+docker-compose up -d
+
+# Ожидание готовности
+echo "⏳ Waiting for services to be ready..."
+sleep 30
+
+# Проверка здоровья
+echo "🏥 Health check..."
+docker-compose ps
+
+# Инициализация
+echo "🔧 Initializing configuration..."
+python3 scripts/python/init_setup.py
+
+echo "✅ Deployment complete!"
+echo ""
+echo "Access points:"
+echo "  Zabbix Web: http://localhost:8080 (Admin/zabbix)"
+echo "  Grafana: http://localhost:3000 (admin/${GRAFANA_PASSWORD})"
+echo "  Portainer: http://localhost:9000"
+```
+
+**Примеры задач для выполнения:**
+
+1. Разверни базовое окружение
+2. Добавь 3+ хоста через API
+3. Создай кастомный template с LLD
+4. Настрой Telegram уведомления
+5. Создай Grafana dashboard
+6. Настрой Proxy для удаленной локации
+7. Оптимизируй производительность
+8. Создай backup скрипт
+9. Напиши документацию
+10. Протестируй все функции
+
+**Критерии успеха:**
+- ✅ Все сервисы работают стабильно
+- ✅ Мониторинг собирает данные со всех хостов
+- ✅ Уведомления приходят корректно
+- ✅ Dashboard'ы отображают метрики
+- ✅ API автоматизация работает
+- ✅ Производительность оптимизирована
+- ✅ Документация полная и понятная
+- ✅ Backup/Restore процедура работает
+
+---
+
+## Справочная секция: Быстрые шпаргалки
+
+### Zabbix API Quick Reference
+
+```bash
+# Authentication
+TOKEN=$(curl -s -X POST http://zabbix/api_jsonrpc.php \
+  -H "Content-Type: application/json-rpc" \
+  -d '{"jsonrpc":"2.0","method":"user.login","params":{"username":"Admin","password":"zabbix"},"id":1}' \
+  | jq -r '.result')
+
+# Get hosts
+curl -s -X POST http://zabbix/api_jsonrpc.php \
+  -H "Content-Type: application/json-rpc" \
+  -d "{\"jsonrpc\":\"2.0\",\"method\":\"host.get\",\"params\":{\"output\":[\"hostid\",\"host\"]},\"auth\":\"$TOKEN\",\"id\":1}" \
+  | jq
+
+# Get problems
+curl -s -X POST http://zabbix/api_jsonrpc.php \
+  -H "Content-Type: application/json-rpc" \
+  -d "{\"jsonrpc\":\"2.0\",\"method\":\"problem.get\",\"params\":{\"output\":\"extend\",\"recent\":true},\"auth\":\"$TOKEN\",\"id\":1}" \
+  | jq
+
+# Create host
+curl -s -X POST http://zabbix/api_jsonrpc.php \
+  -H "Content-Type: application/json-rpc" \
+  -d "{\"jsonrpc\":\"2.0\",\"method\":\"host.create\",\"params\":{\"host\":\"NewHost\",\"interfaces\":[{\"type\":1,\"main\":1,\"useip\":1,\"ip\":\"192.168.1.100\",\"dns\":\"\",\"port\":\"10050\"}],\"groups\":[{\"groupid\":\"2\"}]},\"auth\":\"$TOKEN\",\"id\":1}" \
+  | jq
+```
+
+### Zabbix Agent Keys
+
+```bash
+# System
+system.cpu.load[percpu,avg1]
+system.cpu.util
+vm.memory.size[available]
+system.uptime
+
+# Disk
+vfs.fs.size[/,free]
+vfs.fs.size[/,pfree]
+vfs.fs.inode[/,pfree]
+
+# Network
+net.if.in[eth0]
+net.if.out[eth0]
+net.tcp.listen[80]
+
+# Process
+proc.num[nginx]
+proc.cpu.util[nginx]
+
+# Custom
+system.run[your_command]
+```
+
+### Trigger Functions
+
+```bash
+# Comparison
+last()      # Последнее значение
+avg()       # Среднее
+min()/max() # Минимум/максимум
+
+# Time
+nodata()    # Нет данных
+date()/time() # Текущие дата/время
+
+# Change
+change()    # Изменение
+diff()      # Разница
+
+# Examples
+avg(/Host/system.cpu.util,5m)>80
+last(/Host/vfs.fs.size[/,pfree])<10
+nodata(/Host/agent.ping,5m)=1
+```
+
+### Troubleshooting Commands
+
+```bash
+# Check agent
+zabbix_get -s 192.168.1.100 -k agent.ping
+zabbix_get -s 192.168.1.100 -k system.cpu.load[percpu,avg1]
+
+# Check server logs
+tail -f /var/log/zabbix/zabbix_server.log | grep ERROR
+
+# Check database size
+mysql -e "SELECT table_name, ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'Size_MB' FROM information_schema.TABLES WHERE table_schema = 'zabbix' ORDER BY (data_length + index_length) DESC LIMIT 10;"
+
+# Check queue
+# Web UI: Reports → Status of Zabbix → Queue
+
+# Reload configuration
+docker exec zabbix-server kill -SIGHUP 1
+```
+
+### Best Practices Checklist
+
+**Перед продакшеном:**
+- ✅ SSL/TLS настроен для web interface
+- ✅ Strong passwords установлены
+- ✅ Database на отдельном сервере или partition
+- ✅ Backup настроен и протестирован
+- ✅ Housekeeping правила установлены
+- ✅ Performance monitoring активен
+- ✅ Alerting настроен и протестирован
+- ✅ Documentation актуальна
+- ✅ RBAC настроен корректно
+- ✅ Proxy для удаленных локаций
+- ✅ High availability (если требуется)
+- ✅ Monitoring самого Zabbix
+
+**Регулярное обслуживание:**
+- Проверяй queue и performance еженедельно
+- Анализируй unsupported items
+- Проверяй disk space
+- Обновляй templates
+- Тестируй backup/restore ежемесячно
+- Обновляй Zabbix до последних патчей
+- Оптимизируй item intervals
+- Чисти старые данные
+
+---
+
+## План повторения
+
+### При первом прохождении (2-3 часа):
+- Пройди модули 1-6 обязательно
+- Модули 7-8 по желанию
+- Финальный проект упрощенный (без HA и сложных интеграций)
+
+### При повторном прохождении (через 6-12 месяцев):
+- Бегло просмотри теорию
+- Сфокусируйся на бонусных заданиях
+- Пройди модули 9-10 обязательно
+- Финальный проект полностью
+- Добавь свои кастомизации
+
+### Для закрепления:
+- Автоматизируй мониторинг своих проектов
+- Настрой интеграцию с CI/CD
+- Попробуй разные типы мониторинга (SNMP, IPMI, JMX)
+- Изучи Zabbix в Kubernetes
+- Получи сертификацию Zabbix Certified Specialist
+
+### Дополнительные ресурсы:
+- **Zabbix Documentation** - официальная документация
+- **Zabbix Blog** - статьи и best practices
+- **Zabbix Community** - форум и обсуждения
+- **Zabbix Share** - готовые templates
+- **Zabbix YouTube** - видео уроки
+- **Awesome Zabbix** - коллекция ресурсов на GitHub
+
+---
+
+## Чек-лист навыков
+
+После прохождения курса ты должен уметь:
+
+### Базовые навыки:
+- ✅ Устанавливать и настраивать Zabbix
+- ✅ Создавать hosts и items
+- ✅ Настраивать triggers и actions
+- ✅ Работать с templates
+- ✅ Использовать ConfigMaps и Secrets
+- ✅ Создавать dashboards
+
+### Продвинутые навыки:
+- ✅ Настраивать Low-Level Discovery
+- ✅ Использовать Proxy для distributed monitoring
+- ✅ Работать с Zabbix API
+- ✅ Интегрировать с внешними системами
+- ✅ Настраивать webhooks
+- ✅ Автоматизировать через Ansible
+
+### Expert навыки:
+- ✅ Оптимизировать производительность
+- ✅ Настраивать High Availability
+- ✅ Работать с TimescaleDB
+- ✅ Troubleshooting сложных проблем
+- ✅ Применять GitOps практики
+- ✅ Создавать кастомные интеграции
+
+### Архитектурные навыки:
+- ✅ Проектировать monitoring решения
+- ✅ Планировать capacity и scaling
+- ✅ Обеспечивать безопасность
+- ✅ Настраивать disaster recovery
+- ✅ Оптимизировать использование ресурсов
+- ✅ Интегрировать в DevOps pipelines
+
+---
+
+## Что нового в последних версиях Zabbix
+
+**Zabbix 6.0 LTS:**
+- Новый UI с темной темой
+- High Availability для Server
+- Webhook improvements
+- Business Service Monitoring
+- Improved performance
+
+**Zabbix 6.2:**
+- Scheduled reports
+- SAML authentication
+- Browser item type
+- Enhanced LLD
+
+**Zabbix 6.4:**
+- Single Sign-On (SSO)
+- Service monitoring updates
+- API improvements
+- Better Kubernetes monitoring
+
+**Zabbix 7.0 (upcoming):**
+- Следи за release notes на zabbix.com
+
+---
+
+## Заключение
+
+Поздравляю! Ты прошел курс по освежению знаний Zabbix.
+
+**Следующие шаги:**
+1. Практикуйся регулярно - создай homelab monitoring
+2. Автоматизируй всё с помощью API
+3. Изучай смежные технологии: Prometheus, Grafana, ELK
+4. Получи сертификацию Zabbix Certified Specialist
+5. Делись знаниями - пиши посты, помогай новичкам
+
+**Помни:**
+- Zabbix - это мощный инструмент для мониторинга
+- Начинай с простого, усложняй постепенно
+- Documentation - твой лучший друг
+- Community очень дружелюбное и готово помочь
+
+Проходи этот курс каждые 6-12 месяцев, чтобы оставаться в форме. Каждый раз ты будешь узнавать что-то новое и замечать, как выросли твои навыки!
+
+Happy Monitoring! 📊🚀
