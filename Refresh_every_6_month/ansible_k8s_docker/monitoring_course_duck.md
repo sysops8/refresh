@@ -1682,12 +1682,12 @@ yaml
     - timestamp:
         source: time_local
         format: 02/Jan/2006:15:04:05 -0700
-```
+````
 
 **4. Создай log analysis dashboard**:
 
 Grafana panels для анализа логов:
-```
+````
 Panel 1: Log volume over time
 Query: sum(rate({job="docker"}[1m])) by (level)
 Visualization: Time series
@@ -1795,7 +1795,7 @@ groups:
           summary: "High error rate in {{ $labels.container }}"
           description: "Error rate: {{ $value }} errors/sec"
           dashboard: "http://grafana:3000/d/logs"
-```
+````
 
 **8. Сравнение Loki vs ELK**:
 ```
