@@ -24,21 +24,21 @@
 
 ```
 7. Application    # HTTP, DNS, SSH, FTP
-8. Presentation   # SSL/TLS, шифрование
-9. Session        # Управление сессиями
-10. Transport      # TCP, UDP
-11. Network        # IP, ICMP, маршрутизация
-12. Data Link      # Ethernet, MAC адреса, коммутация
-13. Physical       # Кабели, сигналы
+6. Presentation   # SSL/TLS, шифрование
+5. Session        # Управление сессиями
+4. Transport      # TCP, UDP
+3. Network        # IP, ICMP, маршрутизация
+2. Data Link      # Ethernet, MAC адреса, коммутация
+1. Physical       # Кабели, сигналы
 ```
 
 **TCP/IP модель (4 уровня):**
 
 ```
 4. Application    # HTTP, DNS, SSH (OSI 5-7)
-5. Transport      # TCP, UDP
-6. Internet       # IP, ICMP, ARP
-7. Network Access # Ethernet, WiFi (OSI 1-2)
+3. Transport      # TCP, UDP
+2. Internet       # IP, ICMP, ARP
+1. Network Access # Ethernet, WiFi (OSI 1-2)
 ```
 
 **IP адресация:**
