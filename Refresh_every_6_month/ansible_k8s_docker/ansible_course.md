@@ -1,3 +1,4 @@
+
 # Ansible Refresh: Ежедневный/Полугодовой курс для DevOps/SysAdmin
 
 **Цель:** Освежить в памяти ключевые концепции Ansible за 2-3 часа практики и узнать 1-2 новые продвинутые техники.
@@ -56,7 +57,7 @@ Managed Nodes        # Целевые серверы
 
 bash
 
-````bash
+```bash
 # Ubuntu/Debian
 sudo apt update
 sudo apt install ansible -y
@@ -73,10 +74,10 @@ pip install ansible
 # Проверка
 ansible --version
 ansible localhost -m ping
-````
+```
 
 **Базовая структура проекта:**
-````
+```
 ansible-project/
 ├── ansible.cfg           # Конфигурация Ansible
 ├── inventory/
@@ -96,7 +97,7 @@ ansible-project/
 │   ├── nginx/
 │   └── mysql/
 └── files/               # Статические файлы
-````
+```
 
 **ansible.cfg (базовая конфигурация):**
 
@@ -1149,7 +1150,7 @@ ara playbook show <id>
 # Web интерфейс
 ara-manage runserver
 # Открой http://localhost:8000
-````
+```
 
 ---
 
@@ -1231,6 +1232,7 @@ yaml
 yaml
 
 ```yaml
+---
 - name: Configure servers
   hosts: all
   become: yes
@@ -1243,15 +1245,14 @@ yaml
     - name: Include nginx with vars
       include_role:
         name: nginx
-        vars_from: production.yml vars:
-		http_port: 8080
-		when: install_nginx
-- name: Import role statically
-  import_role:
-    name: security
+        vars_from: production.yml 
+        vars: 
+          http_port: 8080 
+          when: install_nginx
+	- name: Import role statically
+		  import_role:
+		  name: security
 ```
-
-````
 
 **Ansible Galaxy:**
 ```bash
@@ -1724,14 +1725,6 @@ ansible-galaxy collection install mycompany-devops-1.0.0.tar.gz
 ```
 
 ---
-
-Продолжить с модулем 4?
-````
-
-Продолжай
-
-28 дек. 2025 г.
-
 ## Модуль 4: Переменные, Facts и Jinja2 Templates (30 минут)
 
 ### 🎯 Напоминалка
@@ -2875,14 +2868,7 @@ yaml
 # Any_errors_fatal
 ---
 - hosts: webservers
-  any_errors_fatal: true  # Остановить playbook если любая
-```
-
-Продолжи созание курса по модулям, допиши модуль 5 и далее начни модуль 6. По завершению модуля 6, я далее дам отдельную инструкцию
-
-29 дек. 2025 г.
-
-ошибка tasks: # ...
+  any_errors_fatal: true  # Остановить playbook если любая ошибка tasks: # ...
 
 ````
 
@@ -3343,13 +3329,6 @@ molecule destroy   # Удалить контейнер
 ```
 
 ---
-
-Продолжить с модулем 6?
-````
-
-Давай модуль 6
-
-7 янв.
 
 ## Модуль 6: Безопасность, Vault и Production Practices (30 минут)
 
@@ -4492,16 +4471,6 @@ yaml
       debug:
         msg: "Security scan complete. Check /var/log/ for details"
 ```
-
----
-
-Курс завершен! Готов к следующим инструкциям.
-
-Дальше модулей нет?
-
-7 янв.
-
-Вы правы! Давайте продолжим курс. Добавлю еще модули для полноты картины.
 
 ---
 
@@ -5650,16 +5619,15 @@ yaml
     - mysql
   notify: restart filebeat
 
--
+- name: Start Filebeat 
+  service: 
+    name: filebeat 
+    state: started 
+    enabled: yes
+
 ```
 
-Continue
 
-8 янв.
-
-name: Start Filebeat service: name: filebeat state: started enabled: yes
-
-````
 ```jinja
 # templates/filebeat.yml.j2
 filebeat.inputs:
@@ -5760,13 +5728,6 @@ setup.kibana:
         dest: "/tmp/diagnostic_{{ inventory_hostname }}_{{ ansible_date_time.epoch }}.txt"
       delegate_to: localhost
 ```
-
-Продолжить с заключением и финальным проектом?
-````
-
-Продолжи создание
-
-8 янв.
 
 jinja
 
@@ -6674,7 +6635,7 @@ yaml
         - /tmp/cpu_baseline.txt
         - /tmp/io_baseline.txt
         - /tmp/network_baseline.txt
-```
+````
 
 ---
 
@@ -6822,9 +6783,6 @@ all:
     environment: production
 ```
 
-Continue
-
-8 янв.
 
 **playbooks/site.yml (main playbook):**
 
@@ -6995,11 +6953,6 @@ yaml
         create: yes
 ```
 
-Продолжить с остальными playbooks и скриптами?
-
-Продолжай
-
-9 янв.
 
 **playbooks/common.yml:**
 
@@ -8150,7 +8103,7 @@ ansible appservers -a "systemctl restart {{ app_name }}"
 - **Slack**: #devops-alerts
 - **Email**: devops@example.com
 - **Runbook Updates**: Update this file and commit to git
-```
+````
 
 **docs/ARCHITECTURE.md:**
 
@@ -8159,7 +8112,7 @@ ansible appservers -a "systemctl restart {{ app_name }}"
 
 ## Overview
 
-```
+
                     ┌─────────────┐
                     │   Users     │
                     └──────┬──────┘
