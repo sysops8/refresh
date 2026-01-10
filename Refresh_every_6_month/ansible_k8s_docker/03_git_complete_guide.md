@@ -124,7 +124,7 @@ git commit --amend -m "Correct message with fix"
 # 4. Откатить коммит (создать новый коммит с откатом)
 git log --oneline
 git revert <commit-hash>
-# или лучше потому-что при revert возникают конфликты
+# или лучше checkout потому-что при revert возникают конфликты
 # git checkout <hash-коммита> -- hello.txt
 
 # 5. Жесткий откат (ОПАСНО - удаляет изменения)
